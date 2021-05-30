@@ -10,6 +10,7 @@ class LMRTFYRoller extends Application {
         this.advantage = data.advantage;
         this.mode = data.mode;
         this.message = data.message;
+        this.dc = data.dc;
         if (data.title) {
             this.options.title = data.title;
         }
@@ -163,7 +164,7 @@ class LMRTFYRoller extends Application {
 
             const save = actor.data.data.saves[save_id];
             const options = actor.getRollOptions(['all', 'saving-throw', save.name]);
-            save.roll({ event, options });
+            save.roll({ event, options, dc: this.dc });
         }
 
         game.settings.set("core", "rollMode", rollMode);
@@ -185,7 +186,7 @@ class LMRTFYRoller extends Application {
             // system specific roll handling
             const skill = actor.data.data.skills[skill_id];
             const options = actor.getRollOptions(['all', 'skill-check', skill.name]);
-            skill.roll({ event, options });
+            skill.roll({ event, options, dc: this.dc });
         }
 
         game.settings.set("core", "rollMode", rollMode);
@@ -206,7 +207,7 @@ class LMRTFYRoller extends Application {
 
             // system specific roll handling
             const options = actor.getRollOptions(['all', 'perception']);
-            actor.data.data.attributes.perception.roll({ event, options });
+            actor.data.data.attributes.perception.roll({ event, options, dc: this.dc });
         }
 
         game.settings.set("core", "rollMode", rollMode);

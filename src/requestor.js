@@ -24,7 +24,7 @@ class LMRTFYRequestor extends FormApplication {
 
     async getData() {
         // Return data to the template
-        const actors = game.actors.entities.filter(a => a?.hasPlayerOwner);
+        const actors = game.users.entities.filter(u => u.character && u.character.id).map(u => u.character);
         const users = game.users.entities;
         // Note: Maybe these work better at a global level, but keeping things simple
         const abilities = LMRTFY.abilities;
@@ -140,7 +140,16 @@ class LMRTFYRequestor extends FormApplication {
             ui.notifications.warn(game.i18n.localize("LMRTFY.NothingNotification"));
             return;
         }
+        
+        let dc = undefined;
 
+        if (Number.isInteger(formData.dc)) {
+            dc = {
+                value: formData.dc,
+                visibility: formData.visibility
+            }
+        }
+        
         const socketData = {
             actors,
             abilities,
@@ -154,6 +163,7 @@ class LMRTFYRequestor extends FormApplication {
             deathsave: formData['extra-death-save'],
             initiative: formData['extra-initiative'],
             perception: formData['extra-perception'],
+            dc,
         }
         // console.log("LMRTFY socket send : ", socketData)
         if (saveAsMacro) {
