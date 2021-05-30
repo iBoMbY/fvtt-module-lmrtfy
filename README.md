@@ -1,5 +1,7 @@
 # Let Me Roll That For You!
 
+Modifed version by iBoMbY. PF2e only.
+
 ![Latest Release Download Count](https://img.shields.io/badge/dynamic/json?label=Downloads@latest&query=assets%5B1%5D.download_count&url=https%3A%2F%2Fapi.github.com%2Frepos%2FLeague-of-Foundry-Developers%2Ffvtt-module-lmrtfy%2Freleases%2Flatest)
 [![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Flmrtfy&colorB=4aa94a)](https://forge-vtt.com/bazaar#package=lmrtfy)
 
@@ -15,17 +17,13 @@ Writing this module was the idea of iotech, based on the Fantasy Grounds "[Roll 
 ![screenshot](images/screenshot.png)
 
 ## Currently Supported Systems:
-- dnd5e
-- dnd5eJP
 - pf2e
-- pf1e
-- D35E
 
 Your favorite system not on this list? Adding compatibility is easy! Have a look at [CONTRIBUTING.md](/CONTRIBUTING.md) and open a PR!
 
 ## Installation
 
-You can now install this module automatically by specifying the following public module URL : `https://github.com/League-of-Foundry-Developers/fvtt-module-lmrtfy/releases/latest/download/module.json`
+You can now install this module automatically by specifying the following public module URL : `https://github.com/iBoMbY/fvtt-module-lmrtfy/releases/latest/download/module.json`
 
 As GM go to the `Manage Modules` options menu in your World Settings tab then enable the `Let Me Roll That For You!` module.
 
