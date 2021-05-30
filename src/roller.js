@@ -18,7 +18,7 @@ class LMRTFYRoller extends Application {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.title = game.i18n.localize("LMRTFY.Title");
-        options.template = "modules/lmrtfy/templates/roller.html";
+        options.template = "modules/lmrtfy_pf2e/templates/roller.html";
         options.popOut = true;
         options.width = 400;
         options.height = "auto";

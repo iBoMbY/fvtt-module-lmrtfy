@@ -10,7 +10,7 @@ class LMRTFYRequestor extends FormApplication {
         const options = super.defaultOptions;
         options.title = game.i18n.localize("LMRTFY.Title");
         options.id = "lmrtfy";
-        options.template = "modules/lmrtfy/templates/request-rolls.html";
+        options.template = "modules/lmrtfy_pf2e/templates/request-rolls.html";
         options.closeOnSubmit = false;
         options.popOut = true;
         options.width = 600;
