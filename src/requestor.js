@@ -16,7 +16,7 @@ class LMRTFYRequestor extends FormApplication {
         options.width = 600;
         options.height = "auto";
         options.classes = ["lmrtfy", "lmrtfy-requestor"];
-        if (game.settings.get('lmrtfy', 'enableParchmentTheme')) {
+        if (game.settings.get('lmrtfy_pf2e', 'enableParchmentTheme')) {
           options.classes.push('lmrtfy-parchment');
         }
         return options;
@@ -167,7 +167,7 @@ class LMRTFYRequestor extends FormApplication {
                 `// Saves: ${saves.map(a => LMRTFY.saves[a]).filter(s => s).join(", ")}\n` +
                 `// Skills: ${skills.map(s => LMRTFY.skills[s]).filter(s => s).join(", ")}\n` +
                 `const data = ${JSON.stringify(socketData, null, 2)};\n\n` +
-                `game.socket.emit('module.lmrtfy', data);\n`;
+                `game.socket.emit('module.lmrtfy_pf2e', data);\n`;
             const macro = await Macro.create({
                 name: "LMRTFY: " + (message || title),
                 type: "script",
@@ -177,7 +177,7 @@ class LMRTFYRequestor extends FormApplication {
             });
             macro.sheet.render(true);
         } else {
-            game.socket.emit('module.lmrtfy', socketData);
+            game.socket.emit('module.lmrtfy_pf2e', socketData);
             // Send to ourselves
             LMRTFY.onMessage(socketData);
             ui.notifications.info(game.i18n.localize("LMRTFY.SentNotification"))

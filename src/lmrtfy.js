@@ -1,6 +1,6 @@
 class LMRTFY {
     static async init() {
-        game.settings.register('lmrtfy', 'enableParchmentTheme', {
+        game.settings.register('lmrtfy_pf2e', 'enableParchmentTheme', {
             name: game.i18n.localize('LMRTFY.EnableParchmentTheme'),
             hint: game.i18n.localize('LMRTFY.EnableParchmentThemeHint'),
             scope: 'client',
@@ -9,7 +9,7 @@ class LMRTFY {
             default: true,
             onChange: (value) => LMRTFY.onThemeChange(value)
         });
-        game.settings.register('lmrtfy', 'deselectOnRequestorRender', {
+        game.settings.register('lmrtfy_pf2e', 'deselectOnRequestorRender', {
             name: game.i18n.localize('LMRTFY.DeselectOnRequestorRender'),
             hint: game.i18n.localize('LMRTFY.DeselectOnRequestorRenderHint'),
             scope: 'world',
@@ -30,7 +30,7 @@ class LMRTFY {
     }
 
     static ready() {
-        game.socket.on('module.lmrtfy', LMRTFY.onMessage);
+        game.socket.on('module.lmrtfy_pf2e', LMRTFY.onMessage);
 
         LMRTFY.saveRollMethod = 'rollSave';
         LMRTFY.abilityRollMethod = 'rollAbility';
@@ -43,7 +43,7 @@ class LMRTFY {
         LMRTFY.disadvantageRollEvent = { shiftKey: false, altKey: false, ctrlKey: true };
         LMRTFY.specialRolls = { 'initiative': true, 'deathsave': true, 'perception': true };
 
-        if (game.settings.get('lmrtfy', 'deselectOnRequestorRender')) {
+        if (game.settings.get('lmrtfy_pf2e', 'deselectOnRequestorRender')) {
             Hooks.on("renderLMRTFYRequestor", () => {
                 canvas.tokens.releaseAll();
             })

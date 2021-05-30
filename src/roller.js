@@ -23,7 +23,7 @@ class LMRTFYRoller extends Application {
         options.width = 400;
         options.height = "auto";
         options.classes = ["lmrtfy", "lmrtfy-roller"];
-        if (game.settings.get('lmrtfy', 'enableParchmentTheme')) {
+        if (game.settings.get('lmrtfy_pf2e', 'enableParchmentTheme')) {
           options.classes.push('lmrtfy-parchment');
         }
         return options;
