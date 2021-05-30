@@ -153,7 +153,7 @@ class LMRTFYRoller extends Application {
             this.close();
     }
 
-    _makeSaveRoll(event, save) {
+    _makeSaveRoll(event, save_id) {
         // save the current roll mode to reset it after this roll
         const rollMode = game.settings.get("core", "rollMode");
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
@@ -161,7 +161,9 @@ class LMRTFYRoller extends Application {
         for (let actor of this.actors) {
             Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
 
-            actor.data.data.saves[save].roll();
+            const save = actor.data.data.saves[save_id];
+            const options = actor.getRollOptions(['all', 'saving-throw', save.name]);
+            save.roll({ event, options });
         }
 
         game.settings.set("core", "rollMode", rollMode);
@@ -172,7 +174,7 @@ class LMRTFYRoller extends Application {
             this.close();
     }
 
-    _makeSkillRoll(event, skill) {
+    _makeSkillRoll(event, skill_id) {
         // save the current roll mode to reset it after this roll
         const rollMode = game.settings.get("core", "rollMode");
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
@@ -181,7 +183,9 @@ class LMRTFYRoller extends Application {
             Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
 
             // system specific roll handling
-            actor.data.data.skills[skill].roll();
+            const skill = actor.data.data.skills[skill_id];
+            const options = actor.getRollOptions(['all', 'skill-check', skill.name]);
+            skill.roll({ event, options });
         }
 
         game.settings.set("core", "rollMode", rollMode);
@@ -201,7 +205,8 @@ class LMRTFYRoller extends Application {
             Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
 
             // system specific roll handling
-            actor.data.data.attributes.perception.roll();
+            const options = actor.getRollOptions(['all', 'perception']);
+            actor.data.data.attributes.perception.roll({ event, options });
         }
 
         game.settings.set("core", "rollMode", rollMode);
@@ -221,7 +226,8 @@ class LMRTFYRoller extends Application {
             Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
 
             // system specific roll handling
-            actor.data.data.attributes.initiative.roll();
+            const options = actor.getRollOptions(['all', 'initiative']);
+            actor.data.data.attributes.initiative.roll({ event, options });
         }
 
         game.settings.set("core", "rollMode", rollMode);
