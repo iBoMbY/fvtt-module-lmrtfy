@@ -2,6 +2,8 @@
 
 Modifed version by iBoMbY. PF2e only.
 
+The original can be found here: https://github.com/League-of-Foundry-Developers/fvtt-module-lmrtfy
+
 LMRTFY is a module to let Game Masters request rolls from their players. This can help avoid questions like "where do I click again?" or maybe simply to request a roll without the other players knowing about it.
 
 Writing this module was the idea of iotech, based on the Fantasy Grounds "[Roll For Initiative](https://www.fantasygrounds.com/forums/showthread.php?45234)" extension. Iotech also designed and wrote the UI for it.
