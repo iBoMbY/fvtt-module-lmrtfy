@@ -32,65 +32,16 @@ class LMRTFY {
     static ready() {
         game.socket.on('module.lmrtfy', LMRTFY.onMessage);
 
-        switch (game.system.id) {
-            case 'dnd5eJP':
-            case 'dnd5e':
-            case 'sw5e':
-                LMRTFY.saveRollMethod = 'rollAbilitySave';
-                LMRTFY.abilityRollMethod = 'rollAbilityTest';
-                LMRTFY.skillRollMethod = 'rollSkill';
-                LMRTFY.abilities = CONFIG.DND5E.abilities;
-                LMRTFY.skills = CONFIG.DND5E.skills;
-                LMRTFY.saves = CONFIG.DND5E.abilities;
-                LMRTFY.normalRollEvent = { shiftKey: true, altKey: false, ctrlKey: false };
-                LMRTFY.advantageRollEvent = { shiftKey: false, altKey: true, ctrlKey: false };
-                LMRTFY.disadvantageRollEvent = { shiftKey: false, altKey: false, ctrlKey: true };
-                LMRTFY.specialRolls = { 'initiative': true, 'deathsave': true };
-                break;
-
-            case 'pf1':
-                LMRTFY.saveRollMethod = 'rollSavingThrow';
-                LMRTFY.abilityRollMethod = 'rollAbility';
-                LMRTFY.skillRollMethod = 'rollSkill';
-                LMRTFY.abilities = CONFIG.PF1.abilities;
-                LMRTFY.skills = CONFIG.PF1.skills;
-                LMRTFY.saves = CONFIG.PF1.savingThrows;
-                LMRTFY.normalRollEvent = { shiftKey: false, altKey: false, ctrlKey: false };
-                LMRTFY.advantageRollEvent = { shiftKey: false, altKey: true, ctrlKey: false };
-                LMRTFY.disadvantageRollEvent = { shiftKey: false, altKey: false, ctrlKey: true };
-                LMRTFY.specialRolls = { 'initiative': true, 'deathsave': false, 'perception': false };
-                break;
-
-            case 'pf2e':
-                LMRTFY.saveRollMethod = 'rollSave';
-                LMRTFY.abilityRollMethod = 'rollAbility';
-                LMRTFY.skillRollMethod = 'rollSkill';
-                LMRTFY.abilities = CONFIG.PF2E.abilities;
-                LMRTFY.skills = CONFIG.PF2E.skills;
-                LMRTFY.saves = CONFIG.PF2E.saves;
-                LMRTFY.normalRollEvent = { shiftKey: false, altKey: false, ctrlKey: false };
-                LMRTFY.advantageRollEvent = { shiftKey: false, altKey: true, ctrlKey: false };
-                LMRTFY.disadvantageRollEvent = { shiftKey: false, altKey: false, ctrlKey: true };
-                LMRTFY.specialRolls = { 'initiative': true, 'deathsave': true, 'perception': true };
-                break;
-
-            case 'D35E':
-                LMRTFY.saveRollMethod = 'rollSave';
-                LMRTFY.abilityRollMethod = 'rollAbility';
-                LMRTFY.skillRollMethod = 'rollSkill';
-                LMRTFY.abilities = CONFIG.D35E.abilities;
-                LMRTFY.skills = CONFIG.D35E.skills;
-                LMRTFY.saves = CONFIG.D35E.savingThrows;
-                LMRTFY.normalRollEvent = { shiftKey: false, altKey: false, ctrlKey: false };
-                LMRTFY.advantageRollEvent = { shiftKey: false, altKey: true, ctrlKey: false };
-                LMRTFY.disadvantageRollEvent = { shiftKey: false, altKey: false, ctrlKey: true };
-                LMRTFY.specialRolls = { 'initiative': true, 'deathsave': false, 'perception': true };
-                break;
-
-            default:
-                console.error('LMRFTY | Unsupported system detected');
-
-        }
+        LMRTFY.saveRollMethod = 'rollSave';
+        LMRTFY.abilityRollMethod = 'rollAbility';
+        LMRTFY.skillRollMethod = 'rollSkill';
+        LMRTFY.abilities = CONFIG.PF2E.abilities;
+        LMRTFY.skills = CONFIG.PF2E.skills;
+        LMRTFY.saves = CONFIG.PF2E.saves;
+        LMRTFY.normalRollEvent = { shiftKey: false, altKey: false, ctrlKey: false };
+        LMRTFY.advantageRollEvent = { shiftKey: false, altKey: true, ctrlKey: false };
+        LMRTFY.disadvantageRollEvent = { shiftKey: false, altKey: false, ctrlKey: true };
+        LMRTFY.specialRolls = { 'initiative': true, 'deathsave': true, 'perception': true };
 
         if (game.settings.get('lmrtfy', 'deselectOnRequestorRender')) {
             Hooks.on("renderLMRTFYRequestor", () => {
@@ -101,19 +52,7 @@ class LMRTFY {
 
     static onMessage(data) {
         //console.log("LMRTF got message: ", data)
-        if (data.user === "character" &&
-            (!game.user.character || !data.actors.includes(game.user.character.id)))
-            return;
-        else if (!["character", "tokens"].includes(data.user) && data.user !== game.user.id)
-            return;
-        let actors = [];
-        if (data.user === "character")
-            actors = [game.user.character];
-        else if (data.user === "tokens")
-            actors = canvas.tokens.controlled.map(t => t.actor).filter(a => data.actors.includes(a.id));
-        else
-            actors = data.actors.map(id => game.actors.get(id));
-        actors = actors.filter(a => a);
+        const actors = data.actors.map(id => game.actors.get(id)).filter(a => a.owner);
         if (actors.length === 0) return;
         new LMRTFYRoller(actors, data).render(true);
     }

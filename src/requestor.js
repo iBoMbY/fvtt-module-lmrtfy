@@ -24,7 +24,7 @@ class LMRTFYRequestor extends FormApplication {
 
     async getData() {
         // Return data to the template
-        const actors = game.actors.entities;
+        const actors = game.actors.entities.filter(a => a?.hasPlayerOwner);
         const users = game.users.entities;
         // Note: Maybe these work better at a global level, but keeping things simple
         const abilities = LMRTFY.abilities;
@@ -37,19 +37,12 @@ class LMRTFYRequestor extends FormApplication {
                 return acc;
             }, {});
 
-        let tables = null;
-        if (game.tables) {
-            tables = [];
-            game.tables.forEach(t => tables.push(t.data.name));
-        }
-
         return {
             actors,
             users,
             abilities,
             saves,
             skills,
-            tables,
             specialRolls: LMRTFY.specialRolls,
             rollModes: CONFIG.Dice.rollModes,
         };
@@ -68,10 +61,8 @@ class LMRTFYRequestor extends FormApplication {
         super.activateListeners(html);
         this.element.find(".select-all").click((event) => this.setActorSelection(event, true));
         this.element.find(".deselect-all").click((event) => this.setActorSelection(event, false));
-        this.element.find("select[name=user]").change(this._onUserChange.bind(this));
         this.element.find(".lmrtfy-save-roll").click(this._onSubmit.bind(this));
         this.element.find(".lmrtfy-actor").hover(this._onHoverActor.bind(this));
-        this._onUserChange();
     }
 
     setActorSelection(event, enabled) {
@@ -115,20 +106,13 @@ class LMRTFYRequestor extends FormApplication {
         }
         return actors;
     }
-    _onUserChange() {
-        const userId = this.element.find("select[name=user]").val();
-        const actors = this._getUserActorIds(userId)
-        this.element.find(".lmrtfy-actor").hide().filter((i, e) => actors.includes(e.dataset.id)).show();
-
-    }
 
     async _updateObject(event, formData) {
         //console.log("LMRTFY submit: ", formData)
         const saveAsMacro = $(event.currentTarget).hasClass("lmrtfy-save-roll")
         const keys = Object.keys(formData)
-        const user_actors = this._getUserActorIds(formData.user).map(id => `actor-${id}`);
         const actors = keys.filter(k => k.startsWith("actor-")).reduce((acc, k) => {
-            if (formData[k] && user_actors.includes(k)) 
+            if (formData[k]) 
                 acc.push(k.slice(6));
             return acc;
         }, []);
@@ -147,18 +131,17 @@ class LMRTFYRequestor extends FormApplication {
                 acc.push(k.slice(6));
             return acc;
         }, []);
-        const tables = formData.table;
+
         const formula = formData.formula.trim();
         const { advantage, mode, title, message } = formData;
         if (actors.length === 0 ||
              (!message && abilities.length === 0 && saves.length === 0 && skills.length === 0 &&
-                formula.length === 0 && !formData['extra-death-save'] && !formData['extra-initiative'] && !formData['extra-perception'] &&
-                    tables.length === 0)) {
+                formula.length === 0 && !formData['extra-death-save'] && !formData['extra-initiative'] && !formData['extra-perception'])) {
             ui.notifications.warn(game.i18n.localize("LMRTFY.NothingNotification"));
             return;
         }
+
         const socketData = {
-            user: formData.user,
             actors,
             abilities,
             saves,
@@ -171,7 +154,6 @@ class LMRTFYRequestor extends FormApplication {
             deathsave: formData['extra-death-save'],
             initiative: formData['extra-initiative'],
             perception: formData['extra-perception'],
-            tables: tables,
         }
         // console.log("LMRTFY socket send : ", socketData)
         if (saveAsMacro) {

@@ -10,7 +10,6 @@ class LMRTFYRoller extends Application {
         this.advantage = data.advantage;
         this.mode = data.mode;
         this.message = data.message;
-        this.tables = data.tables;
         if (data.title) {
             this.options.title = data.title;
         }
@@ -90,7 +89,6 @@ class LMRTFYRoller extends Application {
             deathsave: this.data.deathsave,
             initiative: this.data.initiative,
             perception: this.data.perception,
-            tables: this.tables,
         };
     }
 
@@ -100,7 +98,6 @@ class LMRTFYRoller extends Application {
         this.element.find(".lmrtfy-ability-save").click(this._onAbilitySave.bind(this))
         this.element.find(".lmrtfy-skill-check").click(this._onSkillCheck.bind(this))
         this.element.find(".lmrtfy-custom-formula").click(this._onCustomFormula.bind(this))
-        this.element.find(".lmrtfy-roll-table").click(this._onRollTable.bind(this));
         if(LMRTFY.specialRolls['initiative']) {
             this.element.find(".lmrtfy-initiative").click(this._onInitiative.bind(this))
         }
@@ -146,6 +143,85 @@ class LMRTFYRoller extends Application {
                     actor[rollMethod].call(actor, ...args, { event: fakeEvent });
                 }
             }
+        }
+
+        game.settings.set("core", "rollMode", rollMode);
+
+        event.currentTarget.disabled = true;
+
+        if (this.element.find("button").filter((i, e) => !e.disabled).length === 0)
+            this.close();
+    }
+
+    _makeSaveRoll(event, save) {
+        // save the current roll mode to reset it after this roll
+        const rollMode = game.settings.get("core", "rollMode");
+        game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
+
+        for (let actor of this.actors) {
+            Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
+
+            actor.data.data.saves[save].roll();
+        }
+
+        game.settings.set("core", "rollMode", rollMode);
+
+        event.currentTarget.disabled = true;
+
+        if (this.element.find("button").filter((i, e) => !e.disabled).length === 0)
+            this.close();
+    }
+
+    _makeSkillRoll(event, skill) {
+        // save the current roll mode to reset it after this roll
+        const rollMode = game.settings.get("core", "rollMode");
+        game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
+
+        for (let actor of this.actors) {
+            Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
+
+            // system specific roll handling
+            actor.data.data.skills[skill].roll();
+        }
+
+        game.settings.set("core", "rollMode", rollMode);
+
+        event.currentTarget.disabled = true;
+
+        if (this.element.find("button").filter((i, e) => !e.disabled).length === 0)
+            this.close();
+    }
+
+    _makePerceptionRoll(event) {
+        // save the current roll mode to reset it after this roll
+        const rollMode = game.settings.get("core", "rollMode");
+        game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
+
+        for (let actor of this.actors) {
+            Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
+
+            // system specific roll handling
+            actor.data.data.attributes.perception.roll();
+        }
+
+        game.settings.set("core", "rollMode", rollMode);
+
+        event.currentTarget.disabled = true;
+
+        if (this.element.find("button").filter((i, e) => !e.disabled).length === 0)
+            this.close();
+    }
+
+    _makeInitiativeRoll(event) {
+        // save the current roll mode to reset it after this roll
+        const rollMode = game.settings.get("core", "rollMode");
+        game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
+
+        for (let actor of this.actors) {
+            Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
+
+            // system specific roll handling
+            actor.data.data.attributes.initiative.roll();
         }
 
         game.settings.set("core", "rollMode", rollMode);
@@ -203,74 +279,6 @@ class LMRTFYRoller extends Application {
             this.close();
     }
 
-    _drawTable(event, table) {
-        const icons = {
-            Actor: 'fas fa-user',
-            Item: 'fas fa-suitcase',
-            Scene: 'fas fa-map',
-            JournalEntry: 'fas fa-book-open',
-            Macro: 'fas fa-terminal',
-            Playlist: '',
-            Compendium: 'fas fa-atlas',
-        }
-
-        let chatMessages = [];
-        let count = 0;
-        const rollTable = game.tables.getName(table);
-
-        if (rollTable) {
-            for (let actor of this.actors) {
-                rollTable.draw({ displayChat: false }).then((res) => {
-                    count++;
-                    const rollResult = res.results;
-    
-                    const nr = rollResult.length > 1 ? `${rollResult.length} results` : "a result";
-                    let content = "";
-                    for (const result of rollResult) {
-                        if (!result.collection) {
-                            content += `<p>${result.text}</p>`;
-                        } else if (['Actor', 'Item', 'Scene', 'JournalEntry', 'Macro'].includes(result.collection)) {
-                            content += `<p><a class="entity-link" draggable="true" data-entity="${result.collection}" data-id="${result.resultId}">
-                                <i class="${icons[result.collection]}"></i> ${result.text}</a></p>`;
-                        } else if (result.collection === 'Playlist') {
-                            content += `<p>@${result.collection}[${result.resultId}]{${result.text}}</p>`;
-                        } else if (result.collection) { // if not specific collection, then is compendium
-                            content += `<p><a class="entity-link" draggable="true" data-pack="${result.collection}" data-id="${result.resultId}">
-                                <i class="${icons[result.collection]}"></i> ${result.text}</a></p>`;
-                        }
-                        
-                    }
-                    let chatData = {
-                        user: game.user._id,
-                        speaker: ChatMessage.getSpeaker({actor}),                
-                        flavor: `Draws ${nr} from the ${table} table.`,
-                        content: content,
-                        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
-                    };
-
-                    if ( ["gmroll", "blindroll"].includes(this.mode) ) {
-                        chatData.whisper = ChatMessage.getWhisperRecipients("GM");
-                    }              
-                    if ( this.mode === "selfroll" ) chatData.whisper = [game.user._id];
-                    if ( this.mode === "blindroll" ) chatData.blind = true;
-
-                    setProperty(chatData, "flags.lmrtfy", {"message": this.data.message, "data": this.data.attach, "blind": chatData.blind});
-                    
-                    chatMessages.push(chatData);
-    
-                    if (count === this.actors.length) {
-                        ChatMessage.create(chatMessages, {});
-    
-                        event.currentTarget.disabled = true;
-                        if (this.element.find("button").filter((i, e) => !e.disabled).length === 0) {
-                            this.close();
-                        }
-                    }
-                });                                 
-            }
-        }        
-    }
-
     _onAbilityCheck(event) {
         event.preventDefault();
         const ability = event.currentTarget.dataset.ability;
@@ -280,13 +288,13 @@ class LMRTFYRoller extends Application {
     _onAbilitySave(event) {
         event.preventDefault();
         const saves = event.currentTarget.dataset.ability;
-        this._makeRoll(event, LMRTFY.saveRollMethod, saves);
+        this._makeSaveRoll(event, saves);
     }
 
     _onSkillCheck(event) {
         event.preventDefault();
         const skill = event.currentTarget.dataset.skill;
-        this._makeRoll(event, LMRTFY.skillRollMethod, skill);
+        this._makeSkillRoll(event, skill);
     }
     _onCustomFormula(event) {
         event.preventDefault();
@@ -294,17 +302,7 @@ class LMRTFYRoller extends Application {
     }
     _onInitiative(event) {
         event.preventDefault();
-        if(this.data.initiative) {
-            for (let actor of this.actors) {
-                actor.rollInitiative();
-            }
-            event.currentTarget.disabled = true;
-            if (this.element.find("button").filter((i, e) => !e.disabled).length === 0)
-                this.close();
-        } else {
-            const initiative = CONFIG.Combat.initiative.formula || game.system.data.initiative;
-            this._makeDiceRoll(event, initiative, game.i18n.localize("LMRTFY.InitiativeRollMessage"));
-        }
+        this._makeInitiativeRoll(event);
     }
     _onDeathSave(event) {
         event.preventDefault();
@@ -322,13 +320,6 @@ class LMRTFYRoller extends Application {
 
     _onPerception(event) {
         event.preventDefault();
-        this._makeDiceRoll(event, `1d20 + @attributes.perception.totalModifier`, game.i18n.localize("LMRTFY.PerceptionRollMessage"));
+        this._makePerceptionRoll(event);
     }
-
-    _onRollTable(event) {
-        event.preventDefault();
-        const table = event.currentTarget.dataset.table;
-        this._drawTable(event, table);
-    }
-
 }
