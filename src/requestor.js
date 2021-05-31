@@ -133,7 +133,7 @@ class LMRTFYRequestor extends FormApplication {
         }, []);
 
         const formula = formData.formula.trim();
-        const { advantage, mode, title, message } = formData;
+        const { mode, title, message } = formData;
         if (actors.length === 0 ||
              (!message && abilities.length === 0 && saves.length === 0 && skills.length === 0 &&
                 formula.length === 0 && !formData['extra-death-save'] && !formData['extra-initiative'] && !formData['extra-perception'])) {
@@ -155,7 +155,6 @@ class LMRTFYRequestor extends FormApplication {
             abilities,
             saves,
             skills,
-            advantage,
             mode,
             title,
             message,
@@ -163,6 +162,7 @@ class LMRTFYRequestor extends FormApplication {
             deathsave: formData['extra-death-save'],
             initiative: formData['extra-initiative'],
             perception: formData['extra-perception'],
+            chooseOne: formData['choose-one'],
             dc,
         }
         // console.log("LMRTFY socket send : ", socketData)

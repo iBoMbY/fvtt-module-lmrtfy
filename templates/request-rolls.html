@@ -38,6 +38,27 @@
 
     <fieldset>
         <div class="form-group">
+            <label>{{localize "LMRTFY.ChooseOne"}}</label>
+            <div class="lmrtfy-extra-perception">
+                <input type="checkbox" name="choose-one" id="lmrtf-choose-one" data-dtype="Boolean" />
+                <label for="lmrtf-choose-one">{{localize "LMRTFY.Enabled"}}</label>
+            </div>
+        </div>          
+        <div class="form-group">
+            <label>{{localize "PF2E.DCLabel"}}</label>
+            <input type="number" name="dc" value="" placeholder="20" data-dtype="Integer"/>
+            
+            <label>&nbsp;{{localize "LMRTFY.Visibility"}}</label>
+            <select name="visibility" data-dtype="String">
+                <option value="gm" selected>{{localize "USER.RoleGamemaster"}}</option>
+                <option value="owner">{{localize "PERMISSION.OWNER"}}</option>
+                <option value="all">{{localize "PERMISSION.AllPlayers"}}</option>
+            </select>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <div class="form-group">
             <label>{{localize "LMRTFY.Extras"}}</label>
                 
             <div class="lmrtfy-extras">
@@ -65,20 +86,6 @@
         <div class="form-group">
             <label>{{localize "LMRTFY.CustomFormula"}}</label>
             <input type="text" name="formula" value='' placeholder='{{localize "LMRTFY.CustomFormulaPlaceholder"}}' data-dtype="String"/>
-        </div>
-    </fieldset>
-
-    <fieldset>
-        <div class="form-group">
-            <label>{{localize "PF2E.DCLabel"}}</label>
-            <input type="number" name="dc" value="" placeholder="20" data-dtype="Integer"/>
-
-            <label>{{localize "LMRTFY.Visibility"}}</label>
-            <select name="visibility" data-dtype="String">
-                <option value="gm" selected>{{localize "USER.RoleGamemaster"}}</option>
-                <option value="owner">{{localize "PERMISSION.OWNER"}}</option>
-                <option value="all">{{localize "PERMISSION.AllPlayers"}}</option>
-            </select>
         </div>
     </fieldset>
  

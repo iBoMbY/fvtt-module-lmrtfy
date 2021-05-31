@@ -16,6 +16,12 @@
     </div>
     {{/if}}
     
+    {{#if chooseOne}}
+    <div class="lmrtfy-choose-one">
+        <span><strong>{{localize "LMRTFY.ChooseOne"}}</strong></span>
+    </div>
+    {{/if}}
+
     <div class="lmrtfy-note">{{note}}</div>
 
     {{#each abilities as |name ability|}}

@@ -52,7 +52,13 @@ class LMRTFY {
 
     static onMessage(data) {
         //console.log("LMRTF got message: ", data)
-        const actors = data.actors.map(id => game.actors.get(id)).filter(a => a == game.user.character);
+        let actors = [];
+        if (data?.user === 'no-check') {
+            actors = data.actors.map(id => game.actors.get(id));
+        } else {
+            actors = data.actors.map(id => game.actors.get(id)).filter(a => a == game.user.character);
+        }
+
         if (actors.length === 0) return;
         new LMRTFYRoller(actors, data).render(true);
     }

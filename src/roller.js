@@ -7,10 +7,10 @@ class LMRTFYRoller extends Application {
         this.abilities = data.abilities;
         this.saves = data.saves;
         this.skills = data.skills;
-        this.advantage = data.advantage;
         this.mode = data.mode;
         this.message = data.message;
         this.dc = data.dc;
+        this.chooseOne = data.chooseOne ?? false;
         if (data.title) {
             this.options.title = data.title;
         }
@@ -66,11 +66,6 @@ class LMRTFYRoller extends Application {
 
     async getData() {
         let note = ""
-        if (this.advantage == 1)
-            note = game.i18n.localize("LMRTFY.AdvantageNote");
-        else if (this.advantage == -1)
-            note = game.i18n.localize("LMRTFY.DisadvantageNote");
-        
         let abilities = {}
         let saves = {}
         let skills = {}
@@ -87,9 +82,10 @@ class LMRTFYRoller extends Application {
             note: note,
             message: this.message,
             customFormula: this.data.formula || false,
-            deathsave: this.data.deathsave,
-            initiative: this.data.initiative,
-            perception: this.data.perception,
+            deathsave: this.data.deathsave ?? false,
+            initiative: this.data.initiative ?? false,
+            perception: this.data.perception ?? false,
+            chooseOne: this.chooseOne
         };
     }
 
@@ -110,22 +106,21 @@ class LMRTFYRoller extends Application {
         }
     }
 
-    _makeRoll(event, rollMethod, ...args) {
-        let fakeEvent = {}
-        switch(this.advantage) {
-            case -1: 
-                fakeEvent = LMRTFY.disadvantageRollEvent;
-                break;
-            case 0:
-                fakeEvent = LMRTFY.normalRollEvent;
-                break;
-            case 1:
-                fakeEvent = LMRTFY.advantageRollEvent;
-                break;
-            case 2: 
-                fakeEvent = event;
-                break;
+    _checkClose() {
+        if (this.element.find("button").filter((i, e) => !e.disabled).length === 0 || this.chooseOne) {
+            this.close();
         }
+    }
+
+    _makeAbilityRoll(event, rollMethod, ability) {
+        const abilities = {
+            str: 'PF2E.AbilityStr',
+            dex: 'PF2E.AbilityDex',
+            con: 'PF2E.AbilityCon',
+            int: 'PF2E.AbilityInt',
+            wis: 'PF2E.AbilityWis',
+            cha: 'PF2E.AbilityCha',
+        };
 
         // save the current roll mode to reset it after this roll
         const rollMode = game.settings.get("core", "rollMode");
@@ -134,24 +129,35 @@ class LMRTFYRoller extends Application {
         for (let actor of this.actors) {
             Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
 
+            console.log(ability);
+            console.log(abilities[ability]);
+
             // system specific roll handling
-            switch (game.system.id) {
-                case "pf2e": {
-                    actor[rollMethod].call(actor, fakeEvent, ...args);
-                    break;
-                }
-                default: {
-                    actor[rollMethod].call(actor, ...args, { event: fakeEvent });
-                }
-            }
+            const modifiers = [];
+
+            const mod = game.pf2e.AbilityModifier.fromAbilityScore(ability, actor.data.data.abilities[ability].value);
+            modifiers.push(mod);
+
+            const rules = actor.items
+                .reduce((rules, item) => rules.concat(game.pf2e.RuleElements.fromOwnedItem(item.data)), [])
+                .filter((rule) => !rule.ignored);
+
+            const { statisticsModifiers } = actor.prepareCustomModifiers(rules);
+            
+            [`${ability}-based`, 'ability-check', 'all'].forEach((key) => {
+                (statisticsModifiers[key] || []).map((m) => duplicate(m)).forEach((m) => modifiers.push(m));
+            });
+            
+            const modifier = new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(abilities[ability])}`, modifiers);
+
+            game.pf2e.Check.roll(modifier, { type: 'skill-check', dc: this.dc }, event);
         }
 
         game.settings.set("core", "rollMode", rollMode);
 
         event.currentTarget.disabled = true;
 
-        if (this.element.find("button").filter((i, e) => !e.disabled).length === 0)
-            this.close();
+        this._checkClose();
     }
 
     _makeSaveRoll(event, save_id) {
@@ -171,8 +177,7 @@ class LMRTFYRoller extends Application {
 
         event.currentTarget.disabled = true;
 
-        if (this.element.find("button").filter((i, e) => !e.disabled).length === 0)
-            this.close();
+        this._checkClose();
     }
 
     _makeSkillRoll(event, skill_id) {
@@ -193,8 +198,7 @@ class LMRTFYRoller extends Application {
 
         event.currentTarget.disabled = true;
 
-        if (this.element.find("button").filter((i, e) => !e.disabled).length === 0)
-            this.close();
+        this._checkClose();
     }
 
     _makePerceptionRoll(event) {
@@ -214,8 +218,7 @@ class LMRTFYRoller extends Application {
 
         event.currentTarget.disabled = true;
 
-        if (this.element.find("button").filter((i, e) => !e.disabled).length === 0)
-            this.close();
+        this._checkClose();
     }
 
     _makeInitiativeRoll(event) {
@@ -235,8 +238,7 @@ class LMRTFYRoller extends Application {
 
         event.currentTarget.disabled = true;
 
-        if (this.element.find("button").filter((i, e) => !e.disabled).length === 0)
-            this.close();
+        this._checkClose();
     }
 
     _tagMessage(data, options) {
@@ -244,12 +246,6 @@ class LMRTFYRoller extends Application {
     }
 
     _makeDiceRoll(event, formula, defaultMessage = null) {
-        if (formula.startsWith("1d20")) {
-            if (this.advantage === 1)
-                formula = formula.replace("1d20", "2d20kh1")
-            else if (this.advantage === -1)
-                formula = formula.replace("1d20", "2d20kl1")
-        }
         let chatMessages = []
         for (let actor of this.actors) {
             let chatData = {
@@ -282,14 +278,13 @@ class LMRTFYRoller extends Application {
         ChatMessage.create(chatMessages, {});
 
         event.currentTarget.disabled = true;
-        if (this.element.find("button").filter((i, e) => !e.disabled).length === 0)
-            this.close();
+        this._checkClose();
     }
 
     _onAbilityCheck(event) {
         event.preventDefault();
         const ability = event.currentTarget.dataset.ability;
-        this._makeRoll(event, LMRTFY.abilityRollMethod, ability);
+        this._makeAbilityRoll(event, LMRTFY.abilityRollMethod, ability);
     }
 
     _onAbilitySave(event) {
@@ -313,16 +308,7 @@ class LMRTFYRoller extends Application {
     }
     _onDeathSave(event) {
         event.preventDefault();
-        if(game.system.id == "dnd5e") {
-            for (let actor of this.actors) {
-                actor.rollDeathSave(event);
-            }
-            event.currentTarget.disabled = true;
-            if (this.element.find("button").filter((i, e) => !e.disabled).length === 0)
-                this.close();
-        } else {
-            this._makeDiceRoll(event, "1d20", game.i18n.localize("LMRTFY.DeathSaveRollMessage"));
-        }
+        this._makeDiceRoll(event, "1d20", game.i18n.localize("LMRTFY.DeathSaveRollMessage"));
     }
 
     _onPerception(event) {
