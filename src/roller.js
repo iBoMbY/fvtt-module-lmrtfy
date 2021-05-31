@@ -113,24 +113,12 @@ class LMRTFYRoller extends Application {
     }
 
     _makeAbilityRoll(event, rollMethod, ability) {
-        const abilities = {
-            str: 'PF2E.AbilityStr',
-            dex: 'PF2E.AbilityDex',
-            con: 'PF2E.AbilityCon',
-            int: 'PF2E.AbilityInt',
-            wis: 'PF2E.AbilityWis',
-            cha: 'PF2E.AbilityCha',
-        };
-
         // save the current roll mode to reset it after this roll
         const rollMode = game.settings.get("core", "rollMode");
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
             Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
-
-            console.log(ability);
-            console.log(abilities[ability]);
 
             // system specific roll handling
             const modifiers = [];
@@ -148,7 +136,7 @@ class LMRTFYRoller extends Application {
                 (statisticsModifiers[key] || []).map((m) => duplicate(m)).forEach((m) => modifiers.push(m));
             });
             
-            const modifier = new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(abilities[ability])}`, modifiers);
+            const modifier = new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(mod.name)}`, modifiers);
 
             game.pf2e.Check.roll(modifier, { type: 'skill-check', dc: this.dc }, event);
         }
