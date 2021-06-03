@@ -138,6 +138,40 @@ class LMRTFYRoller extends Application {
             skills[s] = { name, breakdown };
         });
 
+        let initiative_breakdown = '';
+
+        if (this.data.initiative) {
+            this.actors.forEach(actor => {
+                const initiative = actor.data.data.attributes.initiative;
+
+                const ability = game.i18n.localize(initiative.ability === "perception" ? "LMRTFY.Perception" : LMRTFY.skills[initiative.ability]);
+                
+                const mod_string = (initiative.totalModifier < 0 ? "" : "+") + initiative.totalModifier;
+
+                if (this.actors.length == 1) {
+                    initiative_breakdown = `${ability} ${mod_string}`;
+                } else {
+                    initiative_breakdown += `${ breakdown.length > 0 ? "; " : "" }${actor.name}: ${mod_string}`;
+                }
+            });
+        }
+
+        let perception_breakdown = '';
+
+        if (this.data.initiative) {
+            this.actors.forEach(actor => {
+                const perception = actor.data.data.attributes.perception;
+                
+                const mod_string = (perception.totalModifier < 0 ? "" : "+") + perception.totalModifier;
+
+                if (this.actors.length == 1) {
+                    perception_breakdown = `${game.i18n.localize(proficencyLevel[perception.rank])} ${mod_string}`;
+                } else {
+                    perception_breakdown += `${ breakdown.length > 0 ? "; " : "" }${actor.name}: ${mod_string}`;
+                }
+            });
+        }
+
         return {
             actors: this.actors,
             abilities: abilities,
@@ -148,7 +182,9 @@ class LMRTFYRoller extends Application {
             customFormula: this.data.formula || false,
             deathsave: this.data.deathsave ?? false,
             initiative: this.data.initiative ?? false,
+            initiative_breakdown,
             perception: this.data.perception ?? false,
+            perception_breakdown,
             chooseOne: this.chooseOne
         };
     }
