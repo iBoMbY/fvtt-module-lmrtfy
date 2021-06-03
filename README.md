@@ -29,6 +29,14 @@ Incomplete:
 
 The original can be found here: https://github.com/League-of-Foundry-Developers/fvtt-module-lmrtfy
 
+## Remarks
+
+This currently is an on-purpose build, and there is no guarantee for future support, and I can't promise to fulfill any external wishes.
+
+## Attributions
+
+Special thanks to @In3luki for helping me with some of the roll stuff
+
 ## Installation
 
 You can now install this module automatically by specifying the following public module URL : `https://github.com/iBoMbY/fvtt-module-lmrtfy/releases/latest/download/module.json`
