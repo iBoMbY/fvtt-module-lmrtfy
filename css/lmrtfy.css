@@ -75,7 +75,7 @@ form .form-group .lmrtfy-lore-skill-checks {
 	flex: 8;
 }
 
-.lmrtfy-parchment form .form-group .lmrtfy-skill-checks
+.lmrtfy-parchment form .form-group .lmrtfy-skill-checks,
 .lmrtfy-parchment form .form-group .lmrtfy-lore-skill-checks {
 	max-height: 120px;
 }
