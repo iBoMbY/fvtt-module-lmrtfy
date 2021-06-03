@@ -134,6 +134,20 @@
         </div>
     </fieldset>
 
+    <fieldset>
+        <div class="form-group">
+            <label>{{localize "PF2E.LoreSkillsHeader"}}:</label>
+            <div class="lmrtfy-lore-skill-checks">
+                {{#each lore_skills as |name key|}}
+                <div class="lmrtfy-lore-skill">
+                    <input type="checkbox" name="skill-{{key}}" id="lmrtf-skill-{{key}}" data-dtype="Boolean" />
+                    <label for="lmrtf-skill-{{key}}">{{name}}</label>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </fieldset>
+
     <div class="lmrtfy-submit">
         <button type="submit" class="lmrtfy-request-roll" name="submit" value="1"><i class="fas fa-dice"></i>{{localize "LMRTFY.RequestRolls"}}</button>
         <button type="button" class="lmrtfy-save-roll" name="submit" value="1"><i class="fas fa-download"></i>{{localize "LMRTFY.SaveRequest"}}</button>

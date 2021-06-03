@@ -19,6 +19,7 @@ class LMRTFYRequestor extends FormApplication {
         if (game.settings.get('lmrtfy_pf2e', 'enableParchmentTheme')) {
           options.classes.push('lmrtfy-parchment');
         }
+        options.resizable = true;
         return options;
     }
 
@@ -37,12 +38,20 @@ class LMRTFYRequestor extends FormApplication {
                 return acc;
             }, {});
 
+        const lore_skills = {};
+
+        actors.forEach(actor => {
+            const a_skills = actor.data.data.skills;
+            (Object.keys(a_skills).map(key => a_skills[key]).filter(skill => skill.lore)).map(skill => lore_skills[skill.shortform] = skill.name);
+        });
+
         return {
             actors,
             users,
             abilities,
             saves,
             skills,
+            lore_skills,
             specialRolls: LMRTFY.specialRolls,
             rollModes: CONFIG.Dice.rollModes,
         };
@@ -63,11 +72,33 @@ class LMRTFYRequestor extends FormApplication {
         this.element.find(".deselect-all").click((event) => this.setActorSelection(event, false));
         this.element.find(".lmrtfy-save-roll").click(this._onSubmit.bind(this));
         this.element.find(".lmrtfy-actor").hover(this._onHoverActor.bind(this));
+        this.element.find(".lmrtfy-actor").click(this._onClickActor.bind(this));
+
+        this.setActiveLoreSkills();
+    }
+
+    setActiveLoreSkills() {
+        const selected_actors = this.element.find(".lmrtfy-actor input:checkbox:checked").toArray().map(a => game.actors.get(a.name.slice(6)));
+        
+        const lore_skills = this.element.find(".lmrtfy-lore-skill input").toArray();
+        
+        for (let skill of lore_skills) {
+            const skill_id = skill.name.slice(6);
+
+            skill.disabled = !selected_actors.find(actor => actor.data.data.skills[skill_id]);
+
+            if (skill.disabled) skill.checked = false;
+        }
     }
 
     setActorSelection(event, enabled) {
         event.preventDefault();
         this.element.find(".lmrtfy-actor input").prop("checked", enabled)
+        this.setActiveLoreSkills();
+    }
+
+    _onClickActor(event) {
+        this.setActiveLoreSkills();
     }
 
     // From _onHoverMacro

@@ -65,15 +65,79 @@ class LMRTFYRoller extends Application {
     }
 
     async getData() {
+        const proficencyLevel = [
+            'PF2E.ProficiencyLevel0', // untrained
+            'PF2E.ProficiencyLevel1', // trained
+            'PF2E.ProficiencyLevel2', // expert
+            'PF2E.ProficiencyLevel3', // master
+            'PF2E.ProficiencyLevel4', // legendary
+        ];
+
         let note = ""
         let abilities = {}
         let saves = {}
         let skills = {}
-        this.abilities.forEach(a => abilities[a] = LMRTFY.abilities[a])
-        this.saves.forEach(a => saves[a] = LMRTFY.saves[a])
-        this.skills
-            .sort((a, b) => game.i18n.localize(LMRTFY.skills[a]).localeCompare(game.i18n.localize(LMRTFY.skills[b])))
-            .forEach(s => skills[s] = LMRTFY.skills[s]);
+
+        this.abilities.forEach(a => {
+            let breakdown = '';
+
+            this.actors.forEach(actor => {
+                const ability = actor.data.data.abilities[a];
+                const modifier = this._buildAbilityModifier(actor, a);
+
+                const mod_string = (modifier.totalModifier < 0 ? "" : "+") + modifier.totalModifier;
+
+                if (this.actors.length == 1) {
+                    breakdown = `${game.i18n.localize(proficencyLevel[0])} ${mod_string}`;
+                } else {
+                    breakdown += `${breakdown.length > 0 ? "; " : ""}${actor.name}: ${mod_string}`;
+                }
+            });
+
+            abilities[a] = { name: LMRTFY.abilities[a], breakdown };
+        });
+
+        this.saves.forEach(s => {
+            let breakdown = '';
+
+            this.actors.forEach(actor => {
+                const save = actor.data.data.saves[s];
+                
+                const mod_string = (save.totalModifier < 0 ? "" : "+") + save.totalModifier;
+
+                if (this.actors.length == 1) {
+                    breakdown = `${game.i18n.localize(proficencyLevel[save.rank])} ${mod_string}`;
+                } else {
+                    breakdown += `${ breakdown.length > 0 ? "; " : "" }${actor.name}: ${mod_string}`;
+                }
+            });
+
+            saves[s] = { name: LMRTFY.saves[s], breakdown }
+        });
+
+        this.skills.forEach(s => { 
+            let name = LMRTFY.skills[s];
+            let breakdown = '';
+
+            this.actors.filter(actor => actor.data.data.skills[s]).forEach(actor => {
+                const skill = actor.data.data.skills[s];
+
+                if (!name) {
+                    name = skill.name;
+                }
+
+                const mod_string = (skill.totalModifier < 0 ? "" : "+") + skill.totalModifier;
+
+                if (this.actors.length == 1) {
+                    breakdown = `${game.i18n.localize(proficencyLevel[skill.rank])} ${mod_string}`;
+                } else {
+                    breakdown += `${ breakdown.length > 0 ? "; " : "" }${actor.name}: ${mod_string}`;
+                }
+            });
+
+            skills[s] = { name, breakdown };
+        });
+
         return {
             actors: this.actors,
             abilities: abilities,
@@ -112,6 +176,25 @@ class LMRTFYRoller extends Application {
         }
     }
 
+    _buildAbilityModifier(actor, ability) {
+        const modifiers = [];
+
+        const mod = game.pf2e.AbilityModifier.fromAbilityScore(ability, actor.data.data.abilities[ability].value);
+        modifiers.push(mod);
+
+        const rules = actor.items
+            .reduce((rules, item) => rules.concat(game.pf2e.RuleElements.fromOwnedItem(item.data)), [])
+            .filter((rule) => !rule.ignored);
+
+        const { statisticsModifiers } = actor.prepareCustomModifiers(rules);
+        
+        [`${ability}-based`, 'ability-check', 'all'].forEach((key) => {
+            (statisticsModifiers[key] || []).map((m) => duplicate(m)).forEach((m) => modifiers.push(m));
+        });
+        
+        return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(mod.name)}`, modifiers);
+    }
+
     _makeAbilityRoll(event, rollMethod, ability) {
         // save the current roll mode to reset it after this roll
         const rollMode = game.settings.get("core", "rollMode");
@@ -120,23 +203,8 @@ class LMRTFYRoller extends Application {
         for (let actor of this.actors) {
             Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
 
-            // system specific roll handling
-            const modifiers = [];
-
-            const mod = game.pf2e.AbilityModifier.fromAbilityScore(ability, actor.data.data.abilities[ability].value);
-            modifiers.push(mod);
-
-            const rules = actor.items
-                .reduce((rules, item) => rules.concat(game.pf2e.RuleElements.fromOwnedItem(item.data)), [])
-                .filter((rule) => !rule.ignored);
-
-            const { statisticsModifiers } = actor.prepareCustomModifiers(rules);
-            
-            [`${ability}-based`, 'ability-check', 'all'].forEach((key) => {
-                (statisticsModifiers[key] || []).map((m) => duplicate(m)).forEach((m) => modifiers.push(m));
-            });
-            
-            const modifier = new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(mod.name)}`, modifiers);
+            // system specific roll handling            
+            const modifier = this._buildAbilityModifier(actor, ability);
 
             game.pf2e.Check.roll(modifier, { type: 'skill-check', dc: this.dc }, event);
         }
@@ -178,6 +246,10 @@ class LMRTFYRoller extends Application {
 
             // system specific roll handling
             const skill = actor.data.data.skills[skill_id];
+
+            // roll lore skills only for actors who have them ...
+            if (!skill) continue;
+
             const options = actor.getRollOptions(['all', 'skill-check', skill.name]);
             skill.roll({ event, options, dc: this.dc });
         }

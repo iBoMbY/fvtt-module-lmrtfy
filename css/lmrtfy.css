@@ -22,9 +22,12 @@
 	margin: 3px;
 }
 .lmrtfy.lmrtfy-parchment input[type=checkbox]:checked + label {
-	margin: 2px;
+	margin: 3px;
 	color: red;
 	font-weight: bold;
+}
+.lmrtfy input[type=checkbox]:disabled + label {
+	color: gray;
 }
 
 .lmrtfy-actor-avatars {
@@ -58,21 +61,29 @@ form .form-group .lmrtfy-extras {
 	flex-wrap: nowrap;
 }
 
-form .form-group .lmrtfy-skill-checks {
+.lmrtfy-parchment form .form-group label {
+    line-height: 16px;
+}
+
+form .form-group .lmrtfy-skill-checks,
+form .form-group .lmrtfy-lore-skill-checks {
 	display: flex;
 	flex-wrap: wrap;
 	flex-direction: column;
 	justify-content: space-evenly;
-	max-height: 220px;
+	max-height: 150px;
 	flex: 8;
 }
-.lmrtfy-parchment form .form-group .lmrtfy-skill-checks {
-	max-height: 200px;
+
+.lmrtfy-parchment form .form-group .lmrtfy-skill-checks
+.lmrtfy-parchment form .form-group .lmrtfy-lore-skill-checks {
+	max-height: 120px;
 }
 
 .lmrtfy-ability-checks > div,
 .lmrtfy-saving-throws > div,
 .lmrtfy-skill-checks > div ,
+.lmrtfy-lore-skill-checks > div ,
 .lmrtfy-extras > div {
 	flex: 3;
 	padding: 4px;

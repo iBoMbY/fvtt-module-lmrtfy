@@ -60,8 +60,14 @@ class LMRTFY {
         }
 
         if (actors.length === 0) return;
+        
+        data.skills = data.skills.filter(skill => actors.find(actor => actor.data.data.skills[skill]));
+
+        if (data.abilities.length == 0 && data.saves.length == 0 && data.skills.length == 0 && data.formula.length === 0 && !data.deathsave && !data.initiative && !data.perception) return;
+
         new LMRTFYRoller(actors, data).render(true);
     }
+    
     static requestRoll() {
         if (LMRTFY.requestor === undefined)
             LMRTFY.requestor = new LMRTFYRequestor();

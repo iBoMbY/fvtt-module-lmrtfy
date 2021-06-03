@@ -24,19 +24,19 @@
 
     <div class="lmrtfy-note">{{note}}</div>
 
-    {{#each abilities as |name ability|}}
+    {{#each abilities as |entry ability|}}
     <div>
-        <button type="button" class="lmrtfy-ability-check" data-ability={{ability}}>{{localize "LMRTFY.AbilityCheck"}} {{localize name}}</button>
+        <button type="button" class="lmrtfy-ability-check" data-ability={{ability}}>{{localize "LMRTFY.AbilityCheck"}} {{localize entry.name}} ({{entry.breakdown}})</button>
     </div>
     {{/each}}
-    {{#each saves as |name ability|}}
+    {{#each saves as |entry ability|}}
     <div>
-        <button type="button" class="lmrtfy-ability-save" data-ability="{{ability}}">{{localize "LMRTFY.SavingThrow"}} {{localize name}}</button>
+        <button type="button" class="lmrtfy-ability-save" data-ability="{{ability}}">{{localize "LMRTFY.SavingThrow"}} {{localize entry.name}} ({{entry.breakdown}})</button>
     </div>
     {{/each}}
-    {{#each skills as |name skill|}}
+    {{#each skills as |entry skill|}}
     <div>
-        <button type="button" class="lmrtfy-skill-check" data-skill="{{skill}}">{{localize "LMRTFY.SkillCheck"}} {{localize name}}</button>
+        <button type="button" class="lmrtfy-skill-check" data-skill="{{skill}}">{{localize "LMRTFY.SkillCheck"}} {{localize entry.name}} ({{entry.breakdown}})</button>
     </div>
     {{/each}}
     {{#if customFormula}}
