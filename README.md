@@ -1,37 +1,38 @@
-# Let Me Roll That For You!
+# Let Me Roll That For You! (PF2e)
 
 Modifed version by iBoMbY. PF2e only.
 
-The original can be found here: https://github.com/League-of-Foundry-Developers/fvtt-module-lmrtfy
-
-LMRTFY is a module to let Game Masters request rolls from their players. This can help avoid questions like "where do I click again?" or maybe simply to request a roll without the other players knowing about it.
-
-Writing this module was the idea of iotech, based on the Fantasy Grounds "[Roll For Initiative](https://www.fantasygrounds.com/forums/showthread.php?45234)" extension. Iotech also designed and wrote the UI for it.
-
-![screenshot](images/screenshot.png)
-
 ## Currently Supported Systems:
 - pf2e
+ 
+## Changes vs. original LMRTFY 
 
-Your favorite system not on this list? Adding compatibility is easy! Have a look at [CONTRIBUTING.md](/CONTRIBUTING.md) and open a PR!
+Restricted:
+* Currently only assigned player characters can be selected
+
+Removed:
+* No support for rollable tables
+
+Added:
+* Proper PF2e rolls for most stuff
+* Added lore skill support
+* Added a "Pick one option" option, so the roll window will close after the player used one roll
+* Added the possibility to enter a DC, which will be checked by the PF2e-system (a rule element for DC result modifiers, like Evasion, is already on the way there)
+
+Incomplete:
+* Translations are not up to date (so better use English only)
+
+## Original
+
+The original can be found here: https://github.com/League-of-Foundry-Developers/fvtt-module-lmrtfy
 
 ## Installation
 
 You can now install this module automatically by specifying the following public module URL : `https://github.com/iBoMbY/fvtt-module-lmrtfy/releases/latest/download/module.json`
 
-As GM go to the `Manage Modules` options menu in your World Settings tab then enable the `Let Me Roll That For You!` module.
+As GM go to the `Manage Modules` options menu in your World Settings tab then enable the `Let Me Roll That For You! (PF2e)` module.
 
 ## License
-This Foundry VTT module, writen by KaKaRoTo, is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/).
+This Foundry VTT module, originally writen by KaKaRoTo, modified by iBoMbY, is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/).
 
 This work is licensed under Foundry Virtual Tabletop [EULA - Limited License Agreement for module development v 0.1.6](http://foundryvtt.com/pages/license.html).
-
-## Attributions
-
-- Japanese translation by `@Brother Sharp`
-- German translation by `@Acd-Jake`
-- Portuguese translation by `@rinnocenti`
-- Spanish translation by `@SanaRinomi`
-- French translation by `@Elfenduil`
-- Chinese translation by `@hmqgg`
-- Taiwanese translation by `@zeteticl`
