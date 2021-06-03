@@ -2,6 +2,8 @@
 
 Modifed version by iBoMbY. PF2e only.
 
+![image](https://user-images.githubusercontent.com/51856268/120698163-f04f1400-c4ae-11eb-9fc7-a83d72b7358d.png)
+
 ## Currently Supported Systems:
 - pf2e
  
