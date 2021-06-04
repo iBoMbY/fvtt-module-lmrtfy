@@ -2,8 +2,17 @@
 
 class LMRTFYRequestor extends FormApplication {
     constructor(...args) {
-        super(...args)
-        game.users.apps.push(this)
+        super(...args);
+        
+        game.users.apps.push(this);
+
+        this.actors = {};
+
+        game.users.entities.filter(user => user.character && user.character.id).forEach((user) => {
+            this.actors[user.character.id] = user.character;
+        });
+
+        console.log(this.actors);
     }
 
     static get defaultOptions() {
@@ -25,7 +34,7 @@ class LMRTFYRequestor extends FormApplication {
 
     async getData() {
         // Return data to the template
-        const actors = game.users.entities.filter(u => u.character && u.character.id).map(u => u.character);
+        const actors = Object.keys(this.actors).map(actor_id => this.actors[actor_id]);
         const users = game.users.entities;
         // Note: Maybe these work better at a global level, but keeping things simple
         const abilities = LMRTFY.abilities;
@@ -74,12 +83,12 @@ class LMRTFYRequestor extends FormApplication {
         const actors = this.element.find(".lmrtfy-actor");
         actors.hover(this._onHoverActor.bind(this));
         actors.click(this._onClickActor.bind(this));
-        
+
         this._setActiveLoreSkills();
     }
 
     _getSelectedActors() {
-        return this.element.find(".lmrtfy-actor input:checkbox:checked").toArray().map(a => game.actors.get(a.name.slice(6)))
+        return this.element.find(".lmrtfy-actor input:checkbox:checked").toArray().map(a => this.actors[a.name.slice(6)]);
     }
 
     _setActiveLoreSkills() {
@@ -117,30 +126,15 @@ class LMRTFYRequestor extends FormApplication {
 
         // Handle hover-in
         if (event.type === "mouseenter") {
-            const userId = this.element.find("select[name=user]").val();
             const actorId = div.dataset.id;
-            const actor = game.actors.get(actorId);
+            const actor = this.actors[actorId];
             if (!actor) return;
-            const user = userId === "character" ? game.users.entities.find(u => u.character && u.character._id === actor._id) : null;
+            const user = game.users.entities.find(u => u.character && u.character._id === actor._id);
             const tooltip = document.createElement("SPAN");
             tooltip.classList.add("tooltip");
             tooltip.textContent = `${actor.name}${user ? ` (${user.name})` : ''}`;
             div.appendChild(tooltip);
         }
-    }
-
-    _getUserActorIds(userId) {
-        let actors = [];
-        if (userId === "character") {
-            actors = game.users.entities.map(u => u.character && u.character.id).filter(a => a)
-        } else if (userId === "tokens") {
-            actors = Array.from(new Set(canvas.tokens.placeables.map(t => t.data.actorId))).filter(a => a);
-        } else {
-            const user = game.users.get(userId);
-            if (user)
-                actors = game.actors.entities.filter(a => a.hasPerm(user, "OWNER")).map(a => a.id)
-        }
-        return actors;
     }
 
     async _updateObject(event, formData) {
@@ -204,11 +198,9 @@ class LMRTFYRequestor extends FormApplication {
         // console.log("LMRTFY socket send : ", socketData)
         if (saveAsMacro) {
 
-            const actorTargets = actors.map(a => game.actors.get(a)).filter(a => a).map(a => a.name).join(", ");
-            const user = game.users.get(formData.user) || null;
-            const target = user ? user.name : actorTargets;
+            const actorTargets = actors.map(a => this.actors[a]).filter(a => a).map(a => a.name).join(", ");
             const scriptContent = `// ${title} ${message ? " -- " + message : ""}\n` +
-                `// Request rolls from ${target}\n` +
+                `// Request rolls from ${actorTargets}\n` +
                 `// Abilities: ${abilities.map(a => LMRTFY.abilities[a]).filter(s => s).join(", ")}\n` +
                 `// Saves: ${saves.map(a => LMRTFY.saves[a]).filter(s => s).join(", ")}\n` +
                 `// Skills: ${skills.map(s => LMRTFY.skills[s]).filter(s => s).join(", ")}\n` +
