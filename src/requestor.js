@@ -26,7 +26,6 @@ class LMRTFYRequestor extends FormApplication {
         if (game.settings.get('lmrtfy_pf2e', 'enableParchmentTheme')) {
           options.classes.push('lmrtfy-parchment');
         }
-        options.resizable = true;
         return options;
     }
 
@@ -78,6 +77,11 @@ class LMRTFYRequestor extends FormApplication {
         this.element.find(".select-all").click((event) => this._setActorSelection(event, true));
         this.element.find(".deselect-all").click((event) => this._setActorSelection(event, false));
         this.element.find(".lmrtfy-save-roll").click(this._onSubmit.bind(this));
+        this.element.find(".lmrtfy-extra-initiative").hover(this._onHoverAbility.bind(this));
+        this.element.find(".lmrtfy-extra-perception").hover(this._onHoverAbility.bind(this));
+        this.element.find(".lmrtfy-ability").hover(this._onHoverAbility.bind(this));
+        this.element.find(".lmrtfy-skill").hover(this._onHoverAbility.bind(this));
+        this.element.find(".lmrtfy-lore-skill").hover(this._onHoverAbility.bind(this));
         const actors = this.element.find(".lmrtfy-actor");
         actors.hover(this._onHoverActor.bind(this));
         actors.click(this._onClickActor.bind(this));
@@ -109,6 +113,112 @@ class LMRTFYRequestor extends FormApplication {
 
     _onClickActor(event) {
         this._setActiveLoreSkills();
+    }
+
+    _buildAbilityTooltip(get_modifier) {
+        const table = document.createElement("TABLE");
+
+        const actors = Object.keys(this.actors);
+
+        for (const actor_id of actors) {
+            const actor = this.actors[actor_id];
+            const modifier = get_modifier(actor);
+
+            // for lore skills
+            if (!modifier) continue;
+
+            const {rank, mod} = LMRTFY.getModifierBreakdown(modifier);
+
+            const row = document.createElement("TR");
+
+            let col = document.createElement("TD");
+            col.textContent = actor.name;
+            row.appendChild(col);
+
+            col = document.createElement("TD");
+            col.textContent = rank;
+            row.appendChild(col);
+
+            col = document.createElement("TD");
+            col.textContent = mod;
+            row.appendChild(col);
+
+            table.appendChild(row);
+        }
+
+        const tooltip = document.createElement("DIV");
+
+        tooltip.appendChild(table);
+
+        return tooltip;
+    }
+    
+    _onHoverAbility(event) {
+        event.preventDefault();
+        const div = event.currentTarget;
+
+        // Remove any existing tooltip
+        const tooltip = div.querySelector(".tooltip");
+        if (tooltip) div.removeChild(tooltip);
+
+        // Handle hover-in
+        if (event.type === "mouseenter") {
+            const input = div.querySelector("input");
+
+            let tooltip;
+
+            switch (input.name.slice(0,5)) {
+                case "check":
+                    tooltip = this._buildAbilityTooltip((actor) => { return LMRTFY.buildAbilityModifier(actor, input.dataset.id); });
+                    break;
+                case "skill":
+                    tooltip = this._buildAbilityTooltip((actor) => { return actor.data.data.skills[input.dataset.id]; });
+                    break;
+                case "save-":
+                    tooltip = this._buildAbilityTooltip((actor) => { return actor.data.data.saves[input.dataset.id]; });
+                    break;
+                case "extra":
+                    switch (input.name) {
+                        case "extra-initiative":
+                            tooltip = this._buildAbilityTooltip((actor) => { return actor.data.data.attributes.initiative; });
+                            break;
+                        case "extra-perception":
+                            tooltip = this._buildAbilityTooltip((actor) => { return actor.data.data.attributes.perception; });
+                            break;
+                        default: 
+                            return;
+                    }
+                    break;
+                default: 
+                    return;
+            }
+
+            tooltip.classList.add("tooltip");
+
+            div.appendChild(tooltip);
+
+            const window_box = this.element.find(".lmrtfy .window-content").prevObject.get(0).getBoundingClientRect();
+            const div_box = div.getBoundingClientRect();
+            const tooltip_box = tooltip.getBoundingClientRect();
+
+            // calculate top relative to bottom of div-element
+            const new_top = (div_box.bottom - window_box.top) + 5;
+
+            // center tooltip to the middle of the div
+            let new_left = (div_box.left - window_box.left) - (tooltip_box.width / 2 - div_box.width / 2);
+
+            // but check if we are over the ride edge of the window
+            const new_right = window_box.left + new_left + tooltip_box.width;
+            const overflow = new_right - window_box.right;
+
+            // if so move the tooltip left by the overflow + 1
+            if (overflow > 0) {
+                new_left -= overflow + 1;
+            }
+
+            tooltip.style.top = `${new_top}px`;
+            tooltip.style.left = `${new_left}px`;
+        }
     }
 
     // From _onHoverMacro
