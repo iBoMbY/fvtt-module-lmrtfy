@@ -112,6 +112,47 @@ class LMRTFY {
             }
         }
     }
+
+    static buildAbilityModifier(actor, ability) {
+        const modifiers = [];
+
+        const mod = game.pf2e.AbilityModifier.fromAbilityScore(ability, actor.data.data.abilities[ability].value);
+        modifiers.push(mod);
+
+        const rules = actor.items
+            .reduce((rules, item) => rules.concat(game.pf2e.RuleElements.fromOwnedItem(item.data)), [])
+            .filter((rule) => !rule.ignored);
+
+        const { statisticsModifiers } = actor.prepareCustomModifiers(rules);
+        
+        [`${ability}-based`, 'ability-check', 'all'].forEach((key) => {
+            (statisticsModifiers[key] || []).map((m) => duplicate(m)).forEach((m) => modifiers.push(m));
+        });
+        
+        return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(mod.name)}`, modifiers);
+    } 
+    
+    static getModifierBreakdown(modifier) {
+        const proficencyLevel = [
+            'PF2E.ProficiencyLevel0', // untrained
+            'PF2E.ProficiencyLevel1', // trained
+            'PF2E.ProficiencyLevel2', // expert
+            'PF2E.ProficiencyLevel3', // master
+            'PF2E.ProficiencyLevel4', // legendary
+        ];
+
+        const mod = (modifier.totalModifier < 0 ? "" : "+") + modifier.totalModifier;
+
+        let rank = "";
+
+        if (modifier.name === "initiative") {
+            rank = game.i18n.localize(modifier.ability === "perception" ? "LMRTFY.Perception" : LMRTFY.skills[modifier.ability]);
+        } else {
+            rank = game.i18n.localize(proficencyLevel[modifier.rank ?? 0]);
+        }
+
+        return {rank, mod};
+    }
 }
 
 Hooks.once('init', LMRTFY.init);
