@@ -70,7 +70,7 @@ class LMRTFYRoller extends Application {
         actors.forEach(actor => {
             const modifier = get_modifier(actor);
 
-            let {rank, mod} = LMRTFY.getModifierBreakdown(modifier);
+            const {rank, mod} = LMRTFY.getModifierBreakdown(modifier);
 
             if (this.actors.length == 1) {
                 breakdown = `${rank} ${mod}`;
@@ -104,7 +104,7 @@ class LMRTFYRoller extends Application {
 
         this.skills.forEach(s => { 
             let name = LMRTFY.skills[s];
-            let breakdown = this._buildActorsBreakdown(this.actors, (actor) => {
+            const breakdown = this._buildActorsBreakdown(this.actors, (actor) => {
                 const skill = actor.data.data.skills[s];
 
                 // get lore skill name
@@ -118,9 +118,9 @@ class LMRTFYRoller extends Application {
             skills[s] = { name, breakdown };
         });
 
-        let initiative_breakdown = this.data.initiative ? this._buildActorsBreakdown(this.actors, (actor) => { return actor.data.data.attributes.initiative; }) : "";
+        const initiative_breakdown = this.data.initiative ? this._buildActorsBreakdown(this.actors, (actor) => { return actor.data.data.attributes.initiative; }) : "";
 
-        let perception_breakdown = this.data.perception ? this._buildActorsBreakdown(this.actors, (actor) => { return actor.data.data.attributes.perception; }) : "";
+        const perception_breakdown = this.data.perception ? this._buildActorsBreakdown(this.actors, (actor) => { return actor.data.data.attributes.perception; }) : "";
 
         return {
             actors: this.actors,
