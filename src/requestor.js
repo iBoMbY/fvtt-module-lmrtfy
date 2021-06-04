@@ -68,17 +68,22 @@ class LMRTFYRequestor extends FormApplication {
     
     activateListeners(html) {
         super.activateListeners(html);
-        this.element.find(".select-all").click((event) => this.setActorSelection(event, true));
-        this.element.find(".deselect-all").click((event) => this.setActorSelection(event, false));
+        this.element.find(".select-all").click((event) => this._setActorSelection(event, true));
+        this.element.find(".deselect-all").click((event) => this._setActorSelection(event, false));
         this.element.find(".lmrtfy-save-roll").click(this._onSubmit.bind(this));
-        this.element.find(".lmrtfy-actor").hover(this._onHoverActor.bind(this));
-        this.element.find(".lmrtfy-actor").click(this._onClickActor.bind(this));
-
-        this.setActiveLoreSkills();
+        const actors = this.element.find(".lmrtfy-actor");
+        actors.hover(this._onHoverActor.bind(this));
+        actors.click(this._onClickActor.bind(this));
+        
+        this._setActiveLoreSkills();
     }
 
-    setActiveLoreSkills() {
-        const selected_actors = this.element.find(".lmrtfy-actor input:checkbox:checked").toArray().map(a => game.actors.get(a.name.slice(6)));
+    _getSelectedActors() {
+        return this.element.find(".lmrtfy-actor input:checkbox:checked").toArray().map(a => game.actors.get(a.name.slice(6)))
+    }
+
+    _setActiveLoreSkills() {
+        const selected_actors = this._getSelectedActors();
         
         const lore_skills = this.element.find(".lmrtfy-lore-skill input").toArray();
         
@@ -91,14 +96,14 @@ class LMRTFYRequestor extends FormApplication {
         }
     }
 
-    setActorSelection(event, enabled) {
+    _setActorSelection(event, enabled) {
         event.preventDefault();
         this.element.find(".lmrtfy-actor input").prop("checked", enabled)
-        this.setActiveLoreSkills();
+        this._setActiveLoreSkills();
     }
 
     _onClickActor(event) {
-        this.setActiveLoreSkills();
+        this._setActiveLoreSkills();
     }
 
     // From _onHoverMacro
