@@ -11,8 +11,6 @@ class LMRTFYRequestor extends FormApplication {
         game.users.entities.filter(user => user.character && user.character.id).forEach((user) => {
             this.actors[user.character.id] = user.character;
         });
-
-        console.log(this.actors);
     }
 
     static get defaultOptions() {
@@ -95,11 +93,9 @@ class LMRTFYRequestor extends FormApplication {
         const selected_actors = this._getSelectedActors();
         
         const lore_skills = this.element.find(".lmrtfy-lore-skill input").toArray();
-        
-        for (let skill of lore_skills) {
-            const skill_id = skill.name.slice(6);
 
-            skill.disabled = !selected_actors.find(actor => actor.data.data.skills[skill_id]);
+        for (let skill of lore_skills) {
+            skill.disabled = !selected_actors.find(actor => actor.data.data.skills[skill.dataset.id]);
 
             if (skill.disabled) skill.checked = false;
         }
@@ -141,29 +137,13 @@ class LMRTFYRequestor extends FormApplication {
         //console.log("LMRTFY submit: ", formData)
         const saveAsMacro = $(event.currentTarget).hasClass("lmrtfy-save-roll")
         const keys = Object.keys(formData)
-        const actors = keys.filter(k => k.startsWith("actor-")).reduce((acc, k) => {
-            if (formData[k]) 
-                acc.push(k.slice(6));
-            return acc;
-        }, []);
-        const abilities = keys.filter(k => k.startsWith("check-")).reduce((acc, k) => {
-            if (formData[k])
-                acc.push(k.slice(6));
-            return acc;
-        }, []);
-        const saves = keys.filter(k => k.startsWith("save-")).reduce((acc, k) => {
-            if (formData[k])
-                acc.push(k.slice(5));
-            return acc;
-        }, []);
-        const skills = keys.filter(k => k.startsWith("skill-")).reduce((acc, k) => {
-            if (formData[k])
-                acc.push(k.slice(6));
-            return acc;
-        }, []);
-
+        const actors = keys.filter(k => formData[k] && k.startsWith("actor-")).map(k => k.slice(6));
+        const abilities = keys.filter(k => formData[k] && k.startsWith("check-")).map(k => k.slice(6));
+        const saves = keys.filter(k => formData[k] && k.startsWith("save-")).map(k => k.slice(5));
+        const skills = keys.filter(k => formData[k] && k.startsWith("skill-")).map(k => k.slice(6));
         const formula = formData.formula.trim();
         const { mode, title, message } = formData;
+        
         if (actors.length === 0 ||
              (!message && abilities.length === 0 && saves.length === 0 && skills.length === 0 &&
                 formula.length === 0 && !formData['extra-death-save'] && !formData['extra-initiative'] && !formData['extra-perception'])) {
