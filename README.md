@@ -21,6 +21,7 @@ Added:
 * Added a "Pick one option" option, so the roll window will close after the player used one roll
 * Added the possibility to enter a DC, which will be checked by the PF2e-system (a rule element for DC result modifiers, like Evasion, is already on the way there)
 * Added the rank and current modifier to the roll description for the players
+* Added tooltip with current values for selected chars
 
 Incomplete:
 * Translations are not up to date (so better use English only)
