@@ -206,14 +206,23 @@ class LMRTFYRequestor extends FormApplication {
             const tooltip_box = tooltip.getBoundingClientRect();
 
             // calculate top relative to bottom of div-element
-            const new_top = (div_box.bottom - window_box.top) + 5;
+            let new_top = (div_box.bottom - window_box.top) + 5;
+
+            // but check if we are over the bottom edge of the window
+            const new_bottom = window_box.top + new_top + tooltip_box.height;
+            let overflow = new_bottom - window_box.bottom;
+
+            // if so move the tooltip over the current div
+            if (overflow > 0) {
+                new_top = (div_box.top - window_box.top) - tooltip_box.height - 5;
+            }
 
             // center tooltip to the middle of the div
             let new_left = (div_box.left - window_box.left) - (tooltip_box.width / 2 - div_box.width / 2);
 
             // but check if we are over the ride edge of the window
             const new_right = window_box.left + new_left + tooltip_box.width;
-            const overflow = new_right - window_box.right;
+            overflow = new_right - window_box.right;
 
             // if so move the tooltip left by the overflow + 1
             if (overflow > 0) {
