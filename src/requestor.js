@@ -7,6 +7,7 @@ class LMRTFYRequestor extends FormApplication {
         game.users.apps.push(this);
 
         this.actors = {};
+        this.selected_actors = [];
 
         game.users.entities.filter(user => user.character && user.character.id).forEach((user) => {
             this.actors[user.character.id] = user.character;
@@ -86,20 +87,19 @@ class LMRTFYRequestor extends FormApplication {
         actors.hover(this._onHoverActor.bind(this));
         actors.click(this._onClickActor.bind(this));
 
+        this._setSelectedActors();
         this._setActiveLoreSkills();
     }
 
-    _getSelectedActors() {
-        return this.element.find(".lmrtfy-actor input:checkbox:checked").toArray().map(a => this.actors[a.name.slice(6)]);
+    _setSelectedActors() {
+        this.selected_actors = this.element.find(".lmrtfy-actor input:checkbox:checked").toArray().map(a => this.actors[a.name.slice(6)]);
     }
 
     _setActiveLoreSkills() {
-        const selected_actors = this._getSelectedActors();
-        
         const lore_skills = this.element.find(".lmrtfy-lore-skill input").toArray();
 
         for (let skill of lore_skills) {
-            skill.disabled = !selected_actors.find(actor => actor.data.data.skills[skill.dataset.id]);
+            skill.disabled = !this.selected_actors.find(actor => actor.data.data.skills[skill.dataset.id]);
 
             if (skill.disabled) skill.checked = false;
         }
@@ -107,21 +107,21 @@ class LMRTFYRequestor extends FormApplication {
 
     _setActorSelection(event, enabled) {
         event.preventDefault();
-        this.element.find(".lmrtfy-actor input").prop("checked", enabled)
+        this.element.find(".lmrtfy-actor input").prop("checked", enabled);
+
+        this._setSelectedActors();
         this._setActiveLoreSkills();
     }
 
     _onClickActor(event) {
+        this._setSelectedActors();
         this._setActiveLoreSkills();
     }
 
     _buildAbilityTooltip(get_modifier) {
         const table = document.createElement("TABLE");
 
-        const actors = Object.keys(this.actors);
-
-        for (const actor_id of actors) {
-            const actor = this.actors[actor_id];
+        for (const actor of this.selected_actors) {
             const modifier = get_modifier(actor);
 
             // for lore skills
@@ -148,6 +148,8 @@ class LMRTFYRequestor extends FormApplication {
 
         const tooltip = document.createElement("DIV");
 
+        tooltip.classList.add("tooltip");
+
         tooltip.appendChild(table);
 
         return tooltip;
@@ -161,9 +163,13 @@ class LMRTFYRequestor extends FormApplication {
         const tooltip = div.querySelector(".tooltip");
         if (tooltip) div.removeChild(tooltip);
 
+        if (this.selected_actors.length == 0) return;
+
         // Handle hover-in
         if (event.type === "mouseenter") {
             const input = div.querySelector("input");
+
+            if (input.disabled) return;
 
             let tooltip;
 
@@ -192,8 +198,6 @@ class LMRTFYRequestor extends FormApplication {
                 default: 
                     return;
             }
-
-            tooltip.classList.add("tooltip");
 
             div.appendChild(tooltip);
 
