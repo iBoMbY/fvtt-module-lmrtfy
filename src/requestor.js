@@ -9,7 +9,7 @@ class LMRTFYRequestor extends FormApplication {
         this.actors = {};
         this.selected_actors = [];
 
-        game.users.entities.filter(user => user.character && user.character.id).forEach((user) => {
+        game.users.filter(user => user.character && user.character.id).forEach((user) => {
             this.actors[user.character.id] = user.character;
         });
     }
@@ -33,7 +33,6 @@ class LMRTFYRequestor extends FormApplication {
     async getData() {
         // Return data to the template
         const actors = Object.keys(this.actors).map(actor_id => this.actors[actor_id]);
-        const users = game.users.entities;
         // Note: Maybe these work better at a global level, but keeping things simple
         const abilities = LMRTFY.abilities;
         const saves = LMRTFY.saves;
@@ -54,7 +53,6 @@ class LMRTFYRequestor extends FormApplication {
 
         return {
             actors,
-            users,
             abilities,
             saves,
             skills,
