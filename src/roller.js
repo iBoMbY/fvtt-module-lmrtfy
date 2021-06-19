@@ -187,7 +187,7 @@ class LMRTFYRoller extends Application {
 
         for (let actor of this.actors) {
             const save = actor.data.data.saves[save_id];
-            const options = actor.getRollOptions(['all', 'saving-throw', save.name]);
+            const options = actor.getRollOptions(['all', `${save.ability}-based`, 'saving-throw', save.name]);
             save.roll({ event, options, dc: this.dc });
         }
 
@@ -210,7 +210,7 @@ class LMRTFYRoller extends Application {
             // roll lore skills only for actors who have them ...
             if (!skill) continue;
 
-            const options = actor.getRollOptions(['all', 'skill-check', skill.name]);
+            const options = actor.getRollOptions(['all', `${skill.ability ?? 'int'}-based`, 'skill-check', skill.name]);
             skill.roll({ event, options, dc: this.dc });
         }
 
@@ -227,7 +227,7 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            const options = actor.getRollOptions(['all', 'perception']);
+            const options = actor.getRollOptions(['all', 'wis-based', 'perception']);
             actor.data.data.attributes.perception.roll({ event, options, dc: this.dc });
         }
 
@@ -244,8 +244,10 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            const options = actor.getRollOptions(['all', 'initiative']);
-            actor.data.data.attributes.initiative.roll({ event, options });
+            const initiative = actor.data.data.attributes.initiative;
+            const ability = initiative.ability === 'perception' ? 'wis' : actor.data.data.skills[initiative.ability].ability;
+            const options = actor.getRollOptions(['all', `${ability}-based`, 'initiative']);
+            initiative.roll({ event, options });
         }
 
         game.settings.set("core", "rollMode", rollMode);
