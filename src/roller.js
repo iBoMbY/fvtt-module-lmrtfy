@@ -255,10 +255,6 @@ class LMRTFYRoller extends Application {
         this._checkClose();
     }
 
-    _tagMessage(data, options) {
-      setProperty(data, "flags.lmrtfy", {"message": this.data.message, "data": this.data.attach});
-    }
-
     _makeDiceRoll(event, formula, defaultMessage = null) {
         let chatMessages = []
         for (let actor of this.actors) {
