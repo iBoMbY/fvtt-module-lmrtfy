@@ -255,6 +255,22 @@ class LMRTFYRoller extends Application {
         this._checkClose();
     }
 
+    _makeRecoveryRoll(event) {
+        // save the current roll mode to reset it after this roll
+        const rollMode = game.settings.get("core", "rollMode");
+        game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
+
+        for (let actor of this.actors) {
+            actor.rollRecovery();
+        }
+
+        game.settings.set("core", "rollMode", rollMode);
+
+        event.currentTarget.disabled = true;
+
+        this._checkClose();
+    }
+
     _makeDiceRoll(event, formula, defaultMessage = null) {
         let chatMessages = []
         for (let actor of this.actors) {
@@ -318,7 +334,7 @@ class LMRTFYRoller extends Application {
     }
     _onDeathSave(event) {
         event.preventDefault();
-        this._makeDiceRoll(event, "1d20", game.i18n.localize("LMRTFY.DeathSaveRollMessage"));
+        this._makeRecoveryRoll(event);
     }
 
     _onPerception(event) {
