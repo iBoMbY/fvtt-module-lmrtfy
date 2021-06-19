@@ -245,16 +245,16 @@ class LMRTFYRoller extends Application {
 
         for (let actor of this.actors) {
             const initiative = actor.data.data.attributes.initiative;
-            const optionList = ['all', 'initiative'];
+            const rollNames = ['all', 'initiative'];
             if (initiative.ability === 'perception') {
-                optionList.push('wis-based');
-                optionList.push('perception');
+                rollNames.push('wis-based');
+                rollNames.push('perception');
             } else {
                 const skill = actor.data.data.skills[initiative.ability];
-                optionList.push(`${skill.ability}-based`);
-                optionList.push(skill.name);
+                rollNames.push(`${skill.ability}-based`);
+                rollNames.push(skill.name);
             }
-            const options = actor.getRollOptions(optionList);
+            const options = actor.getRollOptions(rollNames);
             initiative.roll({ event, options });
         }
 
