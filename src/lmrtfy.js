@@ -101,18 +101,6 @@ class LMRTFY {
         }
     }
 
-    static async hideBlind(app, html, msg) {
-        if (msg.message.flags && msg.message.flags.lmrtfy) {
-            if (msg.message.flags.lmrtfy.blind && !game.user.isGM) {
-                msg.content = '<p>??</p>';
-                
-                let idx = html[0].innerHTML.indexOf('<div class="message-content">');
-                html[0].innerHTML = html[0].innerHTML.substring(0, idx);
-                html[0].innerHTML += `<div class="message-content">${msg.content}</div>`;
-            }
-        }
-    }
-
     static buildAbilityModifier(actor, ability) {
         const modifiers = [];
 
@@ -158,4 +146,3 @@ class LMRTFY {
 Hooks.once('init', LMRTFY.init);
 Hooks.on('ready', LMRTFY.ready);
 Hooks.on('getSceneControlButtons', LMRTFY.getSceneControlButtons);
-Hooks.on('renderChatMessage', LMRTFY.hideBlind);

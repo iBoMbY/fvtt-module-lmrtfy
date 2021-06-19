@@ -168,9 +168,6 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
-
-            // system specific roll handling            
             const modifier = LMRTFY.buildAbilityModifier(actor, ability);
 
             game.pf2e.Check.roll(modifier, { type: 'skill-check', dc: this.dc }, event);
@@ -189,8 +186,6 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
-
             const save = actor.data.data.saves[save_id];
             const options = actor.getRollOptions(['all', 'saving-throw', save.name]);
             save.roll({ event, options, dc: this.dc });
@@ -209,8 +204,6 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
-
             // system specific roll handling
             const skill = actor.data.data.skills[skill_id];
 
@@ -234,9 +227,6 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
-
-            // system specific roll handling
             const options = actor.getRollOptions(['all', 'perception']);
             actor.data.data.attributes.perception.roll({ event, options, dc: this.dc });
         }
@@ -254,9 +244,6 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            Hooks.once("preCreateChatMessage", this._tagMessage.bind(this));
-
-            // system specific roll handling
             const options = actor.getRollOptions(['all', 'initiative']);
             actor.data.data.attributes.initiative.roll({ event, options });
         }
@@ -299,7 +286,7 @@ class LMRTFYRoller extends Application {
                 chatData.whisper = ChatMessage.getWhisperRecipients("GM");
             if ( this.mode === "selfroll" ) chatData.whisper = [game.user._id];
             if ( this.mode === "blindroll" ) chatData.blind = true;
-            setProperty(chatData, "flags.lmrtfy", {"message": this.data.message, "data": this.data.attach});
+
             chatMessages.push(chatData);
         }
         ChatMessage.create(chatMessages, {});
