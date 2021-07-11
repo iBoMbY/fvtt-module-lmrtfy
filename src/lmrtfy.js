@@ -108,7 +108,7 @@ class LMRTFY {
         modifiers.push(mod);
 
         const rules = actor.items
-            .reduce((rules, item) => rules.concat(game.pf2e.RuleElements.fromOwnedItem(item.data)), [])
+            .reduce((rules, item) => rules.concat(game.pf2e.RuleElements.fromOwnedItem(item)), [])
             .filter((rule) => !rule.ignored);
 
         const { statisticsModifiers } = actor.prepareCustomModifiers(rules);
