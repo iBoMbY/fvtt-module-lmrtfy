@@ -170,7 +170,7 @@ class LMRTFYRoller extends Application {
         for (let actor of this.actors) {
             const modifier = LMRTFY.buildAbilityModifier(actor, ability);
 
-            game.pf2e.Check.roll(modifier, { type: 'skill-check', dc: this.dc }, event);
+            game.pf2e.Check.roll(modifier, { type: 'skill-check', dc: this.dc, actor }, event);
         }
 
         game.settings.set("core", "rollMode", rollMode);
@@ -282,36 +282,28 @@ class LMRTFYRoller extends Application {
     }
 
     _makeDiceRoll(event, formula, defaultMessage = null) {
-        let chatMessages = []
-        for (let actor of this.actors) {
-            let chatData = {
-              user: game.user._id,
-              speaker: ChatMessage.getSpeaker({actor}),
-              content: formula,
-              flavor: this.message || defaultMessage,
-              type: CONST.CHAT_MESSAGE_TYPES.ROLL
-            };
-            try {
-                let data = duplicate(actor.data.data);
-                data["name"] = actor.name;
-                let roll = new Roll(formula, data).roll();
-                chatData.roll = JSON.stringify(roll);
-                chatData.sound = CONFIG.sounds.dice;
-            } catch(err) {
-                chatData.content = `Error parsing the roll formula: ${formula}`
-                chatData.roll = null;
-                chatData.type = CONST.CHAT_MESSAGE_TYPES.OOC;
-            }
+        const messageFlag = {"message": this.data.message, "data": this.data.attach};
         
-            // Record additional roll data
-            if ( ["gmroll", "blindroll"].includes(this.mode) )
-                chatData.whisper = ChatMessage.getWhisperRecipients("GM");
-            if ( this.mode === "selfroll" ) chatData.whisper = [game.user._id];
-            if ( this.mode === "blindroll" ) chatData.blind = true;
+        Promise.resolve(Promise.all(this.actors.map(async (actor) => {
+            const rollData = actor.getRollData();
+            const roll = new Roll(formula, rollData);
+            
+            roll.toMessage({"flags.lmrtfy": messageFlag}, {rollMode: this.mode, create: false}).then(async (messageData) => {
+                const speaker = ChatMessage.getSpeaker({actor: actor});
 
-            chatMessages.push(chatData);
-        }
-        ChatMessage.create(chatMessages, {});
+                messageData.update({
+                    speaker: {
+                        alias: speaker.alias,
+                        scene: speaker.scene,
+                        token: speaker.token,
+                        actor: speaker.actor,
+                    },
+                    flavor: this.message || defaultMessage,
+                });
+
+                return ChatMessage.create(messageData);
+            });
+        })));
 
         event.currentTarget.disabled = true;
         this._checkClose();
