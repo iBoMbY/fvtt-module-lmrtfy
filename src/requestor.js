@@ -246,7 +246,7 @@ class LMRTFYRequestor extends FormApplication {
             const actorId = div.dataset.id;
             const actor = this.actors[actorId];
             if (!actor) return;
-            const user = game.users.entities.find(u => u.character && u.character._id === actor._id);
+            const user = game.users.find(u => u.character && u.character._id === actor._id);
             const tooltip = document.createElement("SPAN");
             tooltip.classList.add("tooltip");
             tooltip.textContent = `${actor.name}${user ? ` (${user.name})` : ''}`;

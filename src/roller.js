@@ -186,7 +186,7 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            const save = actor.data.data.saves[save_id];
+            const save = actor.saves[save_id].check;
             const options = actor.getRollOptions(['all', `${save.ability}-based`, 'saving-throw', save.name]);
             save.roll({ event, options, dc: this.dc });
         }

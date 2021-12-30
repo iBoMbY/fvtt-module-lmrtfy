@@ -104,7 +104,7 @@ class LMRTFY {
     static buildAbilityModifier(actor, ability) {
         const modifiers = [];
 
-        const mod = game.pf2e.AbilityModifier.fromAbilityScore(ability, actor.data.data.abilities[ability].value);
+        const mod = game.pf2e.AbilityModifier.fromScore(ability, actor.data.data.abilities[ability].value);
         modifiers.push(mod);
 
         const rules = actor.items
