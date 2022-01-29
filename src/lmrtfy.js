@@ -102,19 +102,15 @@ class LMRTFY {
     }
 
     static buildAbilityModifier(actor, ability) {
-        const modifiers = [];
+        // Start with basic ability modifier
+        const modifiers = [game.pf2e.AbilityModifier.fromScore(ability, actor.data.data.abilities[ability].value)];
 
-        const mod = game.pf2e.AbilityModifier.fromScore(ability, actor.data.data.abilities[ability].value);
-        modifiers.push(mod);
-
-        const rules = actor.items
-            .reduce((rules, item) => rules.concat(game.pf2e.RuleElements.fromOwnedItem(item)), [])
-            .filter((rule) => !rule.ignored);
-
+        // Add conditional modifiers from actor
         [`${ability}-based`, 'ability-check', 'all'].forEach((key) => {
             (actor.synthetics.statisticsModifiers[key] || []).forEach((m) => modifiers.push(m.clone()));
         });
 
+        // build and return combined StatisticModifier from modifier list
         return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(LMRTFY.abilities[ability])}`, modifiers);
     } 
     
