@@ -112,10 +112,10 @@ class LMRTFY {
             .filter((rule) => !rule.ignored);
 
         [`${ability}-based`, 'ability-check', 'all'].forEach((key) => {
-            (actor.synthetics.statisticsModifiers[key] || []).map((m) => duplicate(m)).forEach((m) => modifiers.push(m));
+            (actor.synthetics.statisticsModifiers[key] || []).forEach((m) => modifiers.push(m.clone()));
         });
-        
-        return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(mod.name)}`, modifiers);
+
+        return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(LMRTFY.abilities[mod.ability])}`, modifiers);
     } 
     
     static getModifierBreakdown(modifier) {
