@@ -115,7 +115,7 @@ class LMRTFY {
             (actor.synthetics.statisticsModifiers[key] || []).forEach((m) => modifiers.push(m.clone()));
         });
 
-        return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(LMRTFY.abilities[mod.ability])}`, modifiers);
+        return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(LMRTFY.abilities[ability])}`, modifiers);
     } 
     
     static getModifierBreakdown(modifier) {
