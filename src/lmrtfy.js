@@ -101,14 +101,20 @@ class LMRTFY {
         }
     }
 
+    static extractModifiers(modifiers, selectors, options) {
+        return selectors
+            .flatMap((selector) => modifiers[selector] ?? [])
+            .map((m) => m(options) ?? [])
+            .flat();
+    }
+
     static buildAbilityModifier(actor, ability) {
         // Start with basic ability modifier
         const modifiers = [game.pf2e.AbilityModifier.fromScore(ability, actor.data.data.abilities[ability].value)];
 
         // Add conditional modifiers from actor
-        [`${ability}-based`, 'ability-check', 'all'].forEach((key) => {
-            (actor.synthetics.statisticsModifiers[key] || []).forEach((m) => modifiers.push(m.clone()));
-        });
+        const domains = [`${ability}-based`, 'ability-check', 'all'];
+        modifiers.push(...this.extractModifiers(actor.synthetics.statisticsModifiers, domains));
 
         // build and return combined StatisticModifier from modifier list
         return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(LMRTFY.abilities[ability])}`, modifiers);
