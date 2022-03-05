@@ -186,9 +186,7 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            const save = actor.saves[save_id].check;
-            const options = actor.getRollOptions(['all', `${save.ability}-based`, 'saving-throw', save.name]);
-            save.roll({ event, options, dc: this.dc });
+            actor.saves[save_id].check.roll({ event, dc: this.dc });
         }
 
         game.settings.set("core", "rollMode", rollMode);
@@ -204,14 +202,7 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            // system specific roll handling
-            const skill = actor.data.data.skills[skill_id];
-
-            // roll lore skills only for actors who have them ...
-            if (!skill) continue;
-
-            const options = actor.getRollOptions(['all', `${skill.ability ?? 'int'}-based`, 'skill-check', skill.name]);
-            skill.roll({ event, options, dc: this.dc });
+            actor.skills[skill_id]?.check.roll({ event, dc: this.dc });
         }
 
         game.settings.set("core", "rollMode", rollMode);
@@ -227,8 +218,7 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            const options = actor.getRollOptions(['all', 'wis-based', 'perception']);
-            actor.data.data.attributes.perception.roll({ event, options, dc: this.dc });
+            actor.data.data.attributes.perception.roll({ event, dc: this.dc });
         }
 
         game.settings.set("core", "rollMode", rollMode);
@@ -244,18 +234,7 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            const initiative = actor.data.data.attributes.initiative;
-            const rollNames = ['all', 'initiative'];
-            if (initiative.ability === 'perception') {
-                rollNames.push('wis-based');
-                rollNames.push('perception');
-            } else {
-                const skill = actor.data.data.skills[initiative.ability];
-                rollNames.push(`${skill.ability}-based`);
-                rollNames.push(skill.name);
-            }
-            const options = actor.getRollOptions(rollNames);
-            initiative.roll({ event, options });
+            actor.data.data.attributes.initiative.roll({ event });
         }
 
         game.settings.set("core", "rollMode", rollMode);
