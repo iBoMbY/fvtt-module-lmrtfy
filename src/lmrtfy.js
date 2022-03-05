@@ -48,30 +48,123 @@ class LMRTFY {
                 canvas.tokens.releaseAll();
             })
         }
+
+        LMRTFY.rollResult = new Map();
     }
 
     static onMessage(data) {
-        //console.log("LMRTF got message: ", data)
-        let actors = [];
-        if (data?.user === 'no-check') {
-            actors = data.actors.map(id => game.actors.get(id));
+        if (data?.type) {
+            switch (data.type) {
+                case 'rollCallback':
+                    if (game.user.isGM) { // Only store remote results for the GM
+                        const rollStore = LMRTFY.getRollStore(data.actorId);
+                
+                        rollStore.set(data.rollId, data.result);
+                    }
+                    break;
+
+                case 'rollDelete':
+                    LMRTFY.deleteStoredRoll(data.actorId, data.rollId);
+                    break;
+            }
         } else {
-            actors = data.actors.map(id => game.actors.get(id)).filter(a => a == game.user.character);
+            let actors = [];
+            if (data?.user === 'no-check') {
+                actors = data.actors.map(id => game.actors.get(id));
+            } else {
+                actors = data.actors.map(id => game.actors.get(id)).filter(a => a == game.user.character);
+            }
+
+            if (actors.length === 0) return;
+            
+            data.skills = data.skills.filter(skill => actors.find(actor => actor.data.data.skills[skill]));
+
+            if (data.abilities.length == 0 && data.saves.length == 0 && data.skills.length == 0 && data.formula.length === 0 && !data.deathsave && !data.initiative && !data.perception) return;
+
+            new LMRTFYRoller(actors, data).render(true);
         }
-
-        if (actors.length === 0) return;
-        
-        data.skills = data.skills.filter(skill => actors.find(actor => actor.data.data.skills[skill]));
-
-        if (data.abilities.length == 0 && data.saves.length == 0 && data.skills.length == 0 && data.formula.length === 0 && !data.deathsave && !data.initiative && !data.perception) return;
-
-        new LMRTFYRoller(actors, data).render(true);
     }
     
     static requestRoll() {
         if (LMRTFY.requestor === undefined)
             LMRTFY.requestor = new LMRTFYRequestor();
         LMRTFY.requestor.render(true);
+    }
+
+    static getRollStore(actorId) {
+        let rollStore = LMRTFY.rollResult.get(actorId);
+
+        if (!rollStore) {
+            rollStore = new Map();
+            LMRTFY.rollResult.set(actorId, rollStore);
+        }
+
+        return rollStore;
+    }
+
+    static deleteStoredRoll(actorId, rollId) {
+        const rollStore = LMRTFY.rollResult.get(actorId);
+
+        if (rollStore) {
+            rollStore.delete(rollId);
+        };
+    }
+
+    static storeRollResults(rollResults, rollId) {
+        rollResults.forEach((result, actorId) => {
+            const rollStore = LMRTFY.getRollStore(actorId);
+            
+            rollStore.set(rollId, result);
+
+            const socketData = {
+                type: 'rollCallback',
+                actorId,
+                rollId,
+                result,
+            }
+    
+            game.socket.emit('module.lmrtfy_pf2e', socketData);            
+        });
+    }
+
+    static async removeResult(actorId, rollId) {
+        LMRTFY.deleteStoredRoll(actorId, rollId);
+
+        const socketData = {
+            type: 'rollDelete',
+            actorId,
+            rollId,
+        }
+
+        game.socket.emit('module.lmrtfy_pf2e', socketData);             
+    }
+
+    static async waitForResult(actorId, rollId, timeout = 120, deleteResult = true) {
+        const timeoutTick = 500;
+        const timeoutMillis = timeout * 1000;
+        let timeoutCounter = 0;
+
+        const rollStore = LMRTFY.getRollStore(actorId);
+
+        while (true) {
+            const result = rollStore.get(rollId);
+
+            if (result) {
+                const resultCopy = duplicate(result);
+
+                if (deleteResult) {
+                    LMRTFY.removeResult(actorId, rollId);
+                }
+                
+                return resultCopy;
+            } else {
+                if ( timeoutCounter >= timeoutMillis ) {
+                    return Promise.reject('timeout');
+                }
+                await new Promise(r => setTimeout(r, timeoutTick)); // Sleep
+                timeoutCounter += timeoutTick;
+            }
+        }
     }
 
     static onThemeChange(enabled) {

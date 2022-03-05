@@ -3,7 +3,7 @@
     "name": "lmrtfy_pf2e",
     "title": "Let Me Roll That For You! (PF2e)",
     "description": "Ask your players to make rolls for you.",
-    "version": "3.02",
+    "version": "3.10",
     "author": "iBoMbY, KaKaRoTo, iotech, Limping Ninja, Rughalt, Calego",
     "scripts": [
         "./src/lmrtfy.js",
@@ -77,7 +77,7 @@
     "manifest": "https://github.com/iBoMbY/fvtt-module-lmrtfy/releases/latest/download/module.json",
     "download": "https://github.com/iBoMbY/fvtt-module-lmrtfy/releases/latest/download/module.zip",
     "bugs": "https://github.com/iBoMbY/fvtt-module-lmrtfy/issues",
-    "minimumCoreVersion": "9.238",
-    "compatibleCoreVersion": "9.238",
+    "minimumCoreVersion": "9.254",
+    "compatibleCoreVersion": "9.254",
     "allowBugReporter": true
 }
