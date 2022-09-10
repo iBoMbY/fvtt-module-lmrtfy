@@ -47,8 +47,8 @@ class LMRTFYRequestor extends FormApplication {
         const lore_skills = {};
 
         actors.forEach(actor => {
-            const a_skills = actor.data.data.skills;
-            (Object.keys(a_skills).map(key => a_skills[key]).filter(skill => skill.lore)).map(skill => lore_skills[skill.shortform] = skill.name);
+            const a_skills = actor.skills;
+            (Object.keys(a_skills).map(key => a_skills[key]).filter(skill => !LMRTFY.skills[skill.slug])).map(skill => lore_skills[skill.slug] = skill.label);
         });
 
         return {
@@ -97,7 +97,7 @@ class LMRTFYRequestor extends FormApplication {
         const lore_skills = this.element.find(".lmrtfy-lore-skill input").toArray();
 
         for (let skill of lore_skills) {
-            skill.disabled = !this.selected_actors.find(actor => actor.data.data.skills[skill.dataset.id]);
+            skill.disabled = !this.selected_actors.find(actor => actor.skills[skill.dataset.id]);
 
             if (skill.disabled) skill.checked = false;
         }
@@ -176,18 +176,18 @@ class LMRTFYRequestor extends FormApplication {
                     tooltip = this._buildAbilityTooltip((actor) => { return LMRTFY.buildAbilityModifier(actor, input.dataset.id); });
                     break;
                 case "skill":
-                    tooltip = this._buildAbilityTooltip((actor) => { return actor.data.data.skills[input.dataset.id]; });
+                    tooltip = this._buildAbilityTooltip((actor) => { return actor.skills[input.dataset.id]; });
                     break;
                 case "save-":
-                    tooltip = this._buildAbilityTooltip((actor) => { return actor.data.data.saves[input.dataset.id]; });
+                    tooltip = this._buildAbilityTooltip((actor) => { return actor.saves[input.dataset.id]; });
                     break;
                 case "extra":
                     switch (input.name) {
                         case "extra-initiative":
-                            tooltip = this._buildAbilityTooltip((actor) => { return actor.data.data.attributes.initiative; });
+                            tooltip = this._buildAbilityTooltip((actor) => { return actor.attributes.initiative; });
                             break;
                         case "extra-perception":
-                            tooltip = this._buildAbilityTooltip((actor) => { return actor.data.data.attributes.perception; });
+                            tooltip = this._buildAbilityTooltip((actor) => { return actor.attributes.perception; });
                             break;
                         default: 
                             return;
@@ -273,10 +273,11 @@ class LMRTFYRequestor extends FormApplication {
         }
         
         let dc = undefined;
+        const dcValue = parseInt(formData.dc);
 
-        if (Number.isInteger(formData.dc)) {
+        if (!isNaN(dcValue)) {
             dc = {
-                value: formData.dc,
+                value: dcValue,
                 visibility: formData.visibility
             }
         }

@@ -36,7 +36,25 @@ class LMRTFY {
         LMRTFY.abilityRollMethod = 'rollAbility';
         LMRTFY.skillRollMethod = 'rollSkill';
         LMRTFY.abilities = CONFIG.PF2E.abilities;
-        LMRTFY.skills = CONFIG.PF2E.skills;
+        //LMRTFY.skills = CONFIG.PF2E.skills; <- broken
+        LMRTFY.skills = {
+            acrobatics: "PF2E.SkillAcr",
+            arcana: "PF2E.SkillArc",
+            athletics: "PF2E.SkillAth",
+            crafting: "PF2E.SkillCra",
+            deception: "PF2E.SkillDec",
+            diplomacy: "PF2E.SkillDip",
+            intimidation: "PF2E.SkillItm",
+            medicine: "PF2E.SkillMed",
+            nature: "PF2E.SkillNat",
+            occultism: "PF2E.SkillOcc",
+            performance: "PF2E.SkillPrf",
+            religion: "PF2E.SkillRel",
+            society: "PF2E.SkillSoc",
+            stealth: "PF2E.SkillSte",
+            survival: "PF2E.SkillSur",
+            thievery: "PF2E.SkillThi"
+        }
         LMRTFY.saves = CONFIG.PF2E.saves;
         LMRTFY.normalRollEvent = { shiftKey: false, altKey: false, ctrlKey: false };
         LMRTFY.advantageRollEvent = { shiftKey: false, altKey: true, ctrlKey: false };
@@ -77,7 +95,7 @@ class LMRTFY {
 
             if (actors.length === 0) return;
             
-            data.skills = data.skills.filter(skill => actors.find(actor => actor.data.data.skills[skill]));
+            data.skills = data.skills.filter(skill => actors.find(actor => actor.skills[skill]));
 
             if (data.abilities.length == 0 && data.saves.length == 0 && data.skills.length == 0 && data.formula.length === 0 && !data.deathsave && !data.initiative && !data.perception) return;
 
@@ -203,14 +221,21 @@ class LMRTFY {
 
     static buildAbilityModifier(actor, ability) {
         // Start with basic ability modifier
-        const modifiers = [game.pf2e.AbilityModifier.fromScore(ability, actor.data.data.abilities[ability].value)];
+        //const modifiers = [game.pf2e.AbilityModifier.fromScore(ability, actor.abilities[ability].value)];
+        const modifiers = [new game.pf2e.Modifier({
+            slug: ability,
+            label: game.i18n.localize(LMRTFY.abilities[ability]),
+            modifier: Math.floor((actor.abilities[ability].value - 10) / 2),
+            type: "ability",
+            ability
+        })];
 
         // Add conditional modifiers from actor
         const domains = [`${ability}-based`, 'ability-check', 'all'];
         modifiers.push(...this.extractModifiers(actor.synthetics.statisticsModifiers, domains));
 
         // build and return combined StatisticModifier from modifier list
-        return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(LMRTFY.abilities[ability])}`, modifiers);
+        return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(LMRTFY.abilities[ability])}`, modifiers);;
     } 
     
     static getModifierBreakdown(modifier) {
@@ -222,7 +247,13 @@ class LMRTFY {
             'PF2E.ProficiencyLevel4', // legendary
         ];
 
-        const mod = (modifier.totalModifier < 0 ? "" : "+") + modifier.totalModifier;
+        let mod;
+
+        if (modifier.totalModifier == undefined) {
+            mod = (modifier.check.mod < 0 ? "" : "+") + modifier.check.mod;
+        } else {
+            mod = (modifier.totalModifier < 0 ? "" : "+") + modifier.totalModifier;
+        }
 
         let rank = "";
 

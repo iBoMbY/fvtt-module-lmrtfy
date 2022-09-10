@@ -102,18 +102,18 @@ class LMRTFYRoller extends Application {
         this.saves.forEach(s => {
             saves[s] = { 
                 name: LMRTFY.saves[s], 
-                breakdown: this._buildActorsBreakdown(this.actors, (actor) => { return actor.data.data.saves[s]; })
+                breakdown: this._buildActorsBreakdown(this.actors, (actor) => { return actor.saves[s]; })
             }
         });
 
         this.skills.forEach(s => { 
             let name = LMRTFY.skills[s];
             const breakdown = this._buildActorsBreakdown(this.actors, (actor) => {
-                const skill = actor.data.data.skills[s];
+                const skill = actor.skills[s];
 
                 // get lore skill name
                 if (!name) {
-                    name = skill.name;
+                    name = skill.label;
                 }
 
                 return skill; 
@@ -122,9 +122,9 @@ class LMRTFYRoller extends Application {
             skills[s] = { name, breakdown };
         });
 
-        const initiative_breakdown = this.data.initiative ? this._buildActorsBreakdown(this.actors, (actor) => { return actor.data.data.attributes.initiative; }) : "";
+        const initiative_breakdown = this.data.initiative ? this._buildActorsBreakdown(this.actors, (actor) => { return actor.attributes.initiative; }) : "";
 
-        const perception_breakdown = this.data.perception ? this._buildActorsBreakdown(this.actors, (actor) => { return actor.data.data.attributes.perception; }) : "";
+        const perception_breakdown = this.data.perception ? this._buildActorsBreakdown(this.actors, (actor) => { return actor.attributes.perception; }) : "";
 
         return {
             actors: this.actors,
@@ -255,7 +255,7 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            const check = actor.data.data.attributes.perception;
+            const check = actor.attributes.perception;
 
             await check.roll({ event, dc: this.dc, callback: async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'perception', 'perception', roll, outcome, message);
@@ -275,7 +275,7 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            const check = actor.data.data.attributes.initiative;
+            const check = actor.attributes.initiative;
 
             await check.roll({ event, callback: async (roll, outcome, message) => {
                 if (this.rollId) {
