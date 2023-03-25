@@ -13,10 +13,12 @@
   "scripts": [
     "src/lmrtfy.js",
     "src/requestor.js",
-    "src/roller.js"
+    "src/roller.js",
+    "src/chosen.jquery.min.js"
   ],
   "styles": [
-    "/css/lmrtfy.css"
+    "/css/lmrtfy.css",
+    "/css/chosen.min.css"
   ],
   "languages": [
     {
