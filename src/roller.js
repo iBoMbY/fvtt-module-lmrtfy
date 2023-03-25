@@ -18,6 +18,7 @@ class LMRTFYRoller extends Application {
             this.rollId = data.rollId;
         }
         this.rollResults = new Map();
+        this.traits = data.traits;
     }
 
     static get defaultOptions() {
@@ -197,7 +198,15 @@ class LMRTFYRoller extends Application {
         for (let actor of this.actors) {
             const modifier = LMRTFY.buildAbilityModifier(actor, ability);
 
-            await game.pf2e.Check.roll(modifier, { type: 'skill-check', dc: this.dc, actor }, event, async (roll, outcome, message) => {
+            const traits = this.traits.map(trait => {
+                return {
+                    name: trait,
+                    label: game.i18n.localize(CONFIG.PF2E.actionTraits[trait] ?? trait),
+                    description: game.i18n.localize(CONFIG.PF2E.traitsDescriptions[trait] ?? '' )
+                };
+            });
+
+            await game.pf2e.Check.roll(modifier, { type: 'skill-check', dc: this.dc, traits, actor }, event, async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'ability', ability, roll, outcome, message);
             });
         }
@@ -215,7 +224,9 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            await actor.saves[save_id].check.roll({ event, dc: this.dc, callback: async (roll, outcome, message) => {
+            const options = new Set(['test', 'testo']);
+
+            await actor.saves[save_id].check.roll({ event, dc: this.dc, options, traits: this.traits, callback: async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'save', save_id, roll, outcome, message);
             }});
         }
@@ -237,7 +248,7 @@ class LMRTFYRoller extends Application {
 
             if (!check) continue;
 
-            await check.roll({ event, dc: this.dc, callback: async (roll, outcome, message) => {
+            await check.roll({ event, dc: this.dc, traits: this.traits, callback: async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'skill', skill_id, roll, outcome, message);
             }});
         }

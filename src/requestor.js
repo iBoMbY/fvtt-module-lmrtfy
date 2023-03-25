@@ -264,6 +264,7 @@ class LMRTFYRequestor extends FormApplication {
         const skills = keys.filter(k => formData[k] && k.startsWith("skill-")).map(k => k.slice(6));
         const formula = formData.formula.trim();
         const { mode, title, message } = formData;
+        const traits = formData.traits.split(',').map(t => t.trim());
         
         if (actors.length === 0 ||
              (!message && abilities.length === 0 && saves.length === 0 && skills.length === 0 &&
@@ -296,6 +297,7 @@ class LMRTFYRequestor extends FormApplication {
             perception: formData['extra-perception'],
             chooseOne: formData['choose-one'],
             dc,
+            traits,
         }
         // console.log("LMRTFY socket send : ", socketData)
         if (saveAsMacro) {
