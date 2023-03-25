@@ -224,9 +224,7 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            const options = new Set(['test', 'testo']);
-
-            await actor.saves[save_id].check.roll({ event, dc: this.dc, options, traits: this.traits, callback: async (roll, outcome, message) => {
+            await actor.saves[save_id].check.roll({ event, dc: this.dc, traits: this.traits, callback: async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'save', save_id, roll, outcome, message);
             }});
         }
