@@ -257,7 +257,7 @@ class LMRTFY {
 
         let rank = "";
 
-        if (modifier.name === "initiative") {
+        if (modifier.slug === "initiative") {
             rank = game.i18n.localize(modifier.ability === "perception" ? "LMRTFY.Perception" : LMRTFY.skills[modifier.ability]);
         } else {
             rank = game.i18n.localize(proficencyLevel[modifier.rank ?? 0]);
