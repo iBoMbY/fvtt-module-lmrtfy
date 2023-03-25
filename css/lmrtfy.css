@@ -369,9 +369,15 @@ form .form-group .lmrtfy-lore-skill-checks {
 	max-height: 600px;
 }
 
+.lmrtfy .chosen-container {
+	font-size: 14px !important;
+}
+
 .lmrtfy .chosen-choices {
+	border: 1px solid var(--color-border-light-tertiary) !important;
+	border-radius: 3px;
 	background-image: none !important;
-	background-color: var(--color-bg-option) !important;
+	background-color: rgba(0, 0, 0, 0.05) !important;
 }
 
 .lmrtfy .chosen-drop {
@@ -382,4 +388,10 @@ form .form-group .lmrtfy-lore-skill-checks {
 	background-image: none !important;
 	background-color: var(--color-bg-option) !important;
 	color: var(--color-text-dark-primary);
+}
+
+.lmrtfy .chosen-container-multi .chosen-choices li.search-field input[type=text] {
+	font-family: inherit !important;
+	background-color: rgba(0, 0, 0, 0.00) !important;
+	color: var(--color-text-dark-primary) !important;
 }
