@@ -51,6 +51,8 @@ class LMRTFYRequestor extends FormApplication {
             (Object.keys(a_skills).map(key => a_skills[key]).filter(skill => !LMRTFY.skills[skill.slug])).map(skill => lore_skills[skill.slug] = skill.label);
         });
 
+        const traits = CONFIG.PF2E.actionTraits;
+
         return {
             actors,
             abilities,
@@ -59,6 +61,7 @@ class LMRTFYRequestor extends FormApplication {
             lore_skills,
             specialRolls: LMRTFY.specialRolls,
             rollModes: CONFIG.Dice.rollModes,
+            traits,
         };
     }
 
@@ -73,6 +76,9 @@ class LMRTFYRequestor extends FormApplication {
     
     activateListeners(html) {
         super.activateListeners(html);
+
+        $(".chosen-select").chosen();
+
         this.element.find(".select-all").click((event) => this._setActorSelection(event, true));
         this.element.find(".deselect-all").click((event) => this._setActorSelection(event, false));
         this.element.find(".lmrtfy-save-roll").click(this._onSubmit.bind(this));
@@ -264,7 +270,8 @@ class LMRTFYRequestor extends FormApplication {
         const skills = keys.filter(k => formData[k] && k.startsWith("skill-")).map(k => k.slice(6));
         const formula = formData.formula.trim();
         const { mode, title, message } = formData;
-        const traits = formData.traits.split(',').map(t => t.trim());
+        console.log(formData.traits);
+        const traits = formData.traits;
         
         if (actors.length === 0 ||
              (!message && abilities.length === 0 && saves.length === 0 && skills.length === 0 &&

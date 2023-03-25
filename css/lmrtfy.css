@@ -368,3 +368,18 @@ form .form-group .lmrtfy-lore-skill-checks {
 .system-pf1 form .form-group .lmrtfy-skill-checks {
 	max-height: 600px;
 }
+
+.lmrtfy .chosen-choices {
+	background-image: none !important;
+	background-color: var(--color-bg-option) !important;
+}
+
+.lmrtfy .chosen-drop {
+	background-color: var(--color-bg-option) !important;
+}
+
+.lmrtfy .chosen-container-multi .chosen-choices li.search-choice {
+	background-image: none !important;
+	background-color: var(--color-bg-option) !important;
+	color: var(--color-text-dark-primary);
+}
