@@ -266,7 +266,7 @@ class LMRTFYRoller extends Application {
         for (let actor of this.actors) {
             const check = actor.attributes.perception;
 
-            await check.roll({ event, dc: this.dc, callback: async (roll, outcome, message) => {
+            await check.roll({ event, dc: this.dc, traits: this.traits, callback: async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'perception', 'perception', roll, outcome, message);
             }});
         }

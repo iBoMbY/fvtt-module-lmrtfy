@@ -51,7 +51,7 @@ class LMRTFYRequestor extends FormApplication {
             (Object.keys(a_skills).map(key => a_skills[key]).filter(skill => !LMRTFY.skills[skill.slug])).map(skill => lore_skills[skill.slug] = skill.label);
         });
 
-        const traits = CONFIG.PF2E.actionTraits;
+        const traits = LMRTFY.traits;
 
         return {
             actors,
@@ -270,7 +270,6 @@ class LMRTFYRequestor extends FormApplication {
         const skills = keys.filter(k => formData[k] && k.startsWith("skill-")).map(k => k.slice(6));
         const formula = formData.formula.trim();
         const { mode, title, message } = formData;
-        console.log(formData.traits);
         const traits = formData.traits;
         
         if (actors.length === 0 ||

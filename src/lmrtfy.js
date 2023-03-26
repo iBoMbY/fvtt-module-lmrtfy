@@ -67,6 +67,8 @@ class LMRTFY {
             })
         }
 
+        LMRTFY.traits = CONFIG.PF2E.actionTraits;
+
         LMRTFY.rollResult = new Map();
     }
 
@@ -231,11 +233,13 @@ class LMRTFY {
         })];
 
         // Add conditional modifiers from actor
-        const domains = [`${ability}-based`, 'ability-check', 'all'];
+        let domains = actor.getRollOptions();
+        domains.push(`${ability}-based`, 'ability-check', 'all');
+
         modifiers.push(...this.extractModifiers(actor.synthetics.statisticsModifiers, domains));
 
         // build and return combined StatisticModifier from modifier list
-        return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(LMRTFY.abilities[ability])}`, modifiers);;
+        return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(LMRTFY.abilities[ability])}`, modifiers, domains);
     } 
     
     static getModifierBreakdown(modifier) {
