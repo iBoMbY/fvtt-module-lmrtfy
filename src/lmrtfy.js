@@ -22,7 +22,7 @@ class LMRTFY {
         Handlebars.registerHelper('lmrtfy-controlledToken', function (actor) {
             const activeToken = actor.getActiveTokens()[0];
             if (activeToken) {
-                return activeToken._controlled;
+                return activeToken.controlled;
             } else {
                 return false;
             }
