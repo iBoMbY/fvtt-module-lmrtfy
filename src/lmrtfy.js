@@ -26,7 +26,7 @@ class LMRTFY {
             } else {
                 return false;
             }
-        });
+        });        
     }
 
     static ready() {
@@ -105,9 +105,18 @@ class LMRTFY {
         }
     }
     
-    static requestRoll() {
-        if (LMRTFY.requestor === undefined)
-            LMRTFY.requestor = new LMRTFYRequestor();
+    static pickActorsAndSend(data) {
+        LMRTFY.picker = new LMRTFYPicker(data);
+        LMRTFY.picker.render(true);
+    }
+
+    static requestRoll(data = undefined) {
+        if (data) {
+            LMRTFY.requestor = new LMRTFYRequestor(data);
+        } else {
+            if (LMRTFY.requestor === undefined)
+                LMRTFY.requestor = new LMRTFYRequestor();
+        }
         LMRTFY.requestor.render(true);
     }
 

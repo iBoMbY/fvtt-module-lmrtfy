@@ -1,16 +1,44 @@
 
 
 class LMRTFYRequestor extends FormApplication {
-    constructor(...args) {
-        super(...args);
-        
+    constructor(data = undefined) {
+        super();
+     
         game.users.apps.push(this);
 
+        this.selected = data ?? {};
         this.actors = {};
         this.selected_actors = [];
 
         game.users.filter(user => user.character && user.character.id).forEach((user) => {
             this.actors[user.character.id] = user.character;
+        });
+
+        const that = this;
+
+        Handlebars.registerHelper('lmrtfy-isSelected', function (property, key = '', subProperty = '') {
+            const prop = that.selected[property];
+
+            if (!prop)
+                return false;
+
+            if (Array.isArray(prop))
+                return prop.includes(key) ?? false;
+
+            if (typeof prop == "boolean")
+                return prop;
+
+            if (typeof prop == "string")
+              return prop === key;
+
+            if (typeof prop == "object") {
+                const sub = prop[subProperty];
+
+                if (sub)
+                    return sub === key;
+            }
+
+            return false;
         });
     }
 
@@ -33,9 +61,6 @@ class LMRTFYRequestor extends FormApplication {
     async getData() {
         // Return data to the template
         const actors = Object.keys(this.actors).map(actor_id => this.actors[actor_id]);
-        // Note: Maybe these work better at a global level, but keeping things simple
-        const abilities = LMRTFY.abilities;
-        const saves = LMRTFY.saves;
 
         const skills = Object.keys(LMRTFY.skills)
             .sort((a, b) => game.i18n.localize(LMRTFY.skills[a]).localeCompare(game.i18n.localize(LMRTFY.skills[b])))
@@ -51,17 +76,16 @@ class LMRTFYRequestor extends FormApplication {
             (Object.keys(a_skills).map(key => a_skills[key]).filter(skill => !LMRTFY.skills[skill.slug])).map(skill => lore_skills[skill.slug] = skill.label);
         });
 
-        const traits = LMRTFY.traits;
-
         return {
             actors,
-            abilities,
-            saves,
+            abilities: LMRTFY.abilities,
+            saves: LMRTFY.saves,
             skills,
             lore_skills,
             specialRolls: LMRTFY.specialRolls,
             rollModes: CONFIG.Dice.rollModes,
-            traits,
+            traits: LMRTFY.traits,
+            selected: this.selected,
         };
     }
 
@@ -105,7 +129,7 @@ class LMRTFYRequestor extends FormApplication {
         for (let skill of lore_skills) {
             skill.disabled = !this.selected_actors.find(actor => actor.skills[skill.dataset.id]);
 
-            if (skill.disabled) skill.checked = false;
+            if (skill.disabled) skill.checked = this.selected?.skills?.includes(skill.dataset.id) ?? false;
         }
     }
 
@@ -260,6 +284,11 @@ class LMRTFYRequestor extends FormApplication {
         }
     }
 
+    close(...args) {
+        this.selected = {};
+        return super.close(...args);
+    }
+
     async _updateObject(event, formData) {
         //console.log("LMRTFY submit: ", formData)
         const saveAsMacro = $(event.currentTarget).hasClass("lmrtfy-save-roll")
@@ -315,7 +344,9 @@ class LMRTFYRequestor extends FormApplication {
                 `// Saves: ${saves.map(a => LMRTFY.saves[a]).filter(s => s).join(", ")}\n` +
                 `// Skills: ${skills.map(s => LMRTFY.skills[s]).filter(s => s).join(", ")}\n` +
                 `const data = ${JSON.stringify(socketData, null, 2)};\n\n` +
-                `game.socket.emit('module.lmrtfy_pf2e', data);\n`;
+                `game.socket.emit('module.lmrtfy_pf2e', data);\n` +
+                `// alternative (preset request window): LMRTFY.requestRoll(data);\n` +
+                `// alternative (only pick chars): LMRTFY.pickActorsAndSend(data);\n`;
             const macro = await Macro.create({
                 name: "LMRTFY: " + (message || title),
                 type: "script",

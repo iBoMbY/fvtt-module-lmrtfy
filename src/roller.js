@@ -18,7 +18,7 @@ class LMRTFYRoller extends Application {
             this.rollId = data.rollId;
         }
         this.rollResults = new Map();
-        this.traits = data.traits;
+        this.traits = data.traits;   
     }
 
     static get defaultOptions() {

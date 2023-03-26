@@ -7,12 +7,21 @@
             <button type="button" class="deselect-all"><i class="fas fa-square"></i>{{localize "LMRTFY.SelectNone"}}</button>
         </div>
         <div class="form-group lmrtfy-actor-avatars">
-        {{#each actors}}
-            <div class="lmrtfy-actor" data-id="{{this.id}}">
-                <input type="checkbox" name="actor-{{this.id}}" id="lmrtf-actor-{{this.id}}" data-dtype="Boolean" {{#if (lmrtfy-controlledToken this)}}checked{{/if}} />
-                <label for="lmrtf-actor-{{this.id}}"><img src="{{this.img}}" /></label>
-            </div>
-        {{/each}}
+        {{#if selected.actors}}
+            {{#each actors}}
+                <div class="lmrtfy-actor" data-id="{{this.id}}">
+                    <input type="checkbox" name="actor-{{this.id}}" id="lmrtf-actor-{{this.id}}" data-dtype="Boolean" {{#if (lmrtfy-isSelected "actors" this.id)}}checked{{/if}} />
+                    <label for="lmrtf-actor-{{this.id}}"><img src="{{this.img}}" /></label>
+                </div>
+            {{/each}}
+        {{else}}
+            {{#each actors}}
+                <div class="lmrtfy-actor" data-id="{{this.id}}">
+                    <input type="checkbox" name="actor-{{this.id}}" id="lmrtf-actor-{{this.id}}" data-dtype="Boolean" {{#if (lmrtfy-controlledToken this)}}checked{{/if}} />
+                    <label for="lmrtf-actor-{{this.id}}"><img src="{{this.img}}" /></label>
+                </div>
+            {{/each}}
+        {{/if}}
         </div>
     </fieldset>
    
@@ -22,17 +31,17 @@
         
         <select name="mode" data-dtype="String">
             {{#each rollModes as |name mode|}}
-            <option value="{{mode}}">{{localize name}}</option>
+            <option value="{{mode}}" {{#if (lmrtfy-isSelected "mode" mode)}}selected{{/if}}>{{localize name}}</option>
             {{/each}}
         </select>
     </div>
     <div class="form-group">
         <label>{{localize "LMRTFY.WindowTitle"}}</label>
-        <input type="text" name="title" value='{{localize "LMRTFY.WindowTitleValue"}}' placeholder='{{localize "LMRTFY.WindowTitlePlaceholder"}}' data-dtype="String"/>
+        <input type="text" name="title" value='{{#if selected.title}}{{selected.title}}{{else}}{{localize "LMRTFY.WindowTitleValue"}}{{/if}}' placeholder='{{localize "LMRTFY.WindowTitlePlaceholder"}}' data-dtype="String"/>
     </div>
     <div class="form-group">
         <label>{{localize "LMRTFY.Message"}}</label>
-        <input type="text" name="message" value='' placeholder='{{localize "LMRTFY.MessagePlaceholder"}}' data-dtype="String"/>
+        <input type="text" name="message" value="{{selected.message}}" placeholder='{{localize "LMRTFY.MessagePlaceholder"}}' data-dtype="String"/>
     </div>
     </fieldset>
 
@@ -40,19 +49,19 @@
         <div class="form-group">
             <label>{{localize "LMRTFY.ChooseOne"}}</label>
             <div class="lmrtfy-extra-perception">
-                <input type="checkbox" name="choose-one" id="lmrtf-choose-one" data-dtype="Boolean" />
+                <input type="checkbox" name="choose-one" id="lmrtf-choose-one" data-dtype="Boolean" {{#if (lmrtfy-isSelected "chooseOne")}}checked{{/if}} />
                 <label for="lmrtf-choose-one">{{localize "LMRTFY.Enabled"}}</label>
             </div>
         </div>          
         <div class="form-group">
             <label>{{localize "LMRTFY.DCLabel"}}</label>
-            <input type="number" name="dc" value="" placeholder="20" data-dtype="Integer"/>
+            <input type="number" name="dc" value="{{selected.dc.value}}" placeholder="20" data-dtype="Integer"/>
             
             <label>&nbsp;{{localize "LMRTFY.Visibility"}}</label>
             <select name="visibility" data-dtype="String">
-                <option value="gm" selected>{{localize "USER.RoleGamemaster"}}</option>
-                <option value="owner">{{localize "OWNERSHIP.OWNER"}}</option>
-                <option value="all">{{localize "OWNERSHIP.AllPlayers"}}</option>
+                <option value="gm" {{#if (lmrtfy-isSelected "dc" "gm" "visibility")}}selected{{/if}}>{{localize "USER.RoleGamemaster"}}</option>
+                <option value="owner" {{#if (lmrtfy-isSelected "dc" "owner" "visibility")}}selected{{/if}}>{{localize "OWNERSHIP.OWNER"}}</option>
+                <option value="all" {{#if (lmrtfy-isSelected "dc" "all" "visibility")}}selected{{/if}}>{{localize "OWNERSHIP.AllPlayers"}}</option>
             </select>
         </div>
         <div class="form-group">
@@ -60,7 +69,7 @@
                 <select name="traits" id="lmrtf-traits" data-placeholder="Begin typing a name to filter..." multiple class="chosen-select" data-dtype="String">
                     <option value=""></option>
                     {{#each traits as |name key|}}
-                    <option value="{{key}}">{{localize name}}</option>
+                    <option value="{{key}}" {{#if (lmrtfy-isSelected "traits" key)}}selected{{/if}}>{{localize name}}</option>
                     {{/each}}
                 </select>
             </div>
@@ -74,20 +83,20 @@
             <div class="lmrtfy-extras">
                 {{#if specialRolls.initiative}}
                 <div class="lmrtfy-extra-initiative">
-                    <input type="checkbox" name="extra-initiative" id="lmrtf-extra-initiative" data-dtype="Boolean" />
+                    <input type="checkbox" name="extra-initiative" id="lmrtf-extra-initiative" data-dtype="Boolean" {{#if (lmrtfy-isSelected "initiative")}}checked{{/if}} />
                     <label for="lmrtf-extra-initiative">{{localize "LMRTFY.Initiative"}}</label>
                     
                 </div>
                 {{/if}}
                 {{#if specialRolls.deathsave}}
                 <div class="lmrtfy-extra-death-save">
-                    <input type="checkbox" name="extra-death-save" id="lmrtf-extra-death-save" data-dtype="Boolean" />
+                    <input type="checkbox" name="extra-death-save" id="lmrtf-extra-death-save" data-dtype="Boolean" {{#if (lmrtfy-isSelected "deathsave")}}checked{{/if}} />
                     <label for="lmrtf-extra-death-save">{{localize "LMRTFY.DeathSave"}}</label>
                 </div>
                 {{/if}}
                 {{#if specialRolls.perception}}
                 <div class="lmrtfy-extra-perception">
-                    <input type="checkbox" name="extra-perception" id="lmrtf-extra-perception" data-dtype="Boolean" />
+                    <input type="checkbox" name="extra-perception" id="lmrtf-extra-perception" data-dtype="Boolean" {{#if (lmrtfy-isSelected "perception")}}checked{{/if}} />
                     <label for="lmrtf-extra-perception">{{localize "LMRTFY.Perception"}}</label>
                 </div>
                 {{/if}}
@@ -95,7 +104,7 @@
         </div>
         <div class="form-group">
             <label>{{localize "LMRTFY.CustomFormula"}}</label>
-            <input type="text" name="formula" value='' placeholder='{{localize "LMRTFY.CustomFormulaPlaceholder"}}' data-dtype="String"/>
+            <input type="text" name="formula" value='{{selected.formula}}' placeholder='{{localize "LMRTFY.CustomFormulaPlaceholder"}}' data-dtype="String"/>
         </div>
     </fieldset>
  
@@ -106,7 +115,7 @@
         <div class="lmrtfy-ability-checks">
             {{#each abilities as |name key|}}
             <div class="lmrtfy-ability">
-                <input type="checkbox" name="check-{{key}}" id="lmrtf-check-{{key}}" data-dtype="Boolean" data-id="{{key}}" />
+                <input type="checkbox" name="check-{{key}}" id="lmrtf-check-{{key}}" data-dtype="Boolean" data-id="{{key}}" {{#if (lmrtfy-isSelected "abilities" key)}}checked{{/if}} />
                 <label for="lmrtf-check-{{key}}">{{localize name}}</label>
                 
             </div>
@@ -122,7 +131,7 @@
         <div class="lmrtfy-saving-throws">
             {{#each saves as |name key|}}
             <div class="lmrtfy-ability">
-                <input type="checkbox" name="save-{{key}}" id="lmrtf-save-{{key}}" data-dtype="Boolean" data-id="{{key}}" />
+                <input type="checkbox" name="save-{{key}}" id="lmrtf-save-{{key}}" data-dtype="Boolean" data-id="{{key}}" {{#if (lmrtfy-isSelected "saves" key)}}checked{{/if}} />
                 <label for="lmrtf-save-{{key}}">{{localize name}}</label>            
             </div>
             {{/each}}
@@ -136,7 +145,7 @@
             <div class="lmrtfy-skill-checks">
                 {{#each skills as |name key|}}
                 <div class="lmrtfy-skill">
-                    <input type="checkbox" name="skill-{{key}}" id="lmrtf-skill-{{key}}" data-dtype="Boolean" data-id="{{key}}" />
+                    <input type="checkbox" name="skill-{{key}}" id="lmrtf-skill-{{key}}" data-dtype="Boolean" data-id="{{key}}" {{#if (lmrtfy-isSelected "skills" key)}}checked{{/if}} />
                     <label for="lmrtf-skill-{{key}}">{{localize name}}</label>
                 </div>
                 {{/each}}
@@ -150,7 +159,7 @@
             <div class="lmrtfy-lore-skill-checks">
                 {{#each lore_skills as |name key|}}
                 <div class="lmrtfy-lore-skill">
-                    <input type="checkbox" name="skill-{{key}}" id="lmrtf-skill-{{key}}" data-dtype="Boolean" data-id="{{key}}" />
+                    <input type="checkbox" name="skill-{{key}}" id="lmrtf-skill-{{key}}" data-dtype="Boolean" data-id="{{key}}" {{#if (lmrtfy-isSelected "skills" key)}}checked{{/if}} />
                     <label for="lmrtf-skill-{{key}}">{{name}}</label>
                 </div>
                 {{/each}}

@@ -14,6 +14,7 @@
     "src/lmrtfy.js",
     "src/requestor.js",
     "src/roller.js",
+    "src/picker.js",    
     "src/chosen.jquery.min.js"
   ],
   "styles": [
