@@ -264,7 +264,7 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            const check = actor.attributes.perception;
+            const check = actor.perception ?? actor.attributes.perception;
 
             await check.roll({ event, dc: this.dc, traits: this.traits, callback: async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'perception', 'perception', roll, outcome, message);
