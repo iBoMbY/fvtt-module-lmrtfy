@@ -49,5 +49,7 @@
     "LMRTFY.Visibility": "Visibility",
     "LMRTFY.ChooseOne": "Pick one option:",
     "LMRTFY.Enabled": "Enabled",
-    "LMRTFY.DCLabel": "Check DC"
+    "LMRTFY.DCLabel": "Check DC",
+    "LMRTFY.ExtraRollOptions": "Extra Roll Options",
+    "LMRTFY.ExtraPlaceholder": "action:recall-knowledge, hunted-prey"
 }

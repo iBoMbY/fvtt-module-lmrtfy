@@ -18,7 +18,8 @@ class LMRTFYRoller extends Application {
             this.rollId = data.rollId;
         }
         this.rollResults = new Map();
-        this.traits = data.traits;   
+        this.traits = data.traits;
+        this.extraRollOptions = data.extraRollOptions;
     }
 
     static get defaultOptions() {
@@ -190,10 +191,22 @@ class LMRTFYRoller extends Application {
         }
     }
 
+    extractExtraRollOptions(extraRollOptions) {
+        let result = [];
+
+        if (extraRollOptions && extraRollOptions.length > 0) {
+            result = extraRollOptions.split(',').map(o => o.trim());
+        }
+
+        return result;
+    }
+
     async _makeAbilityRoll(event, rollMethod, ability) {
         // save the current roll mode to reset it after this roll
         const rollMode = game.settings.get("core", "rollMode");
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
+
+        const options = this.extractExtraRollOptions(this.extraRollOptions);
 
         for (let actor of this.actors) {
             const modifier = LMRTFY.buildAbilityModifier(actor, ability);
@@ -206,7 +219,7 @@ class LMRTFYRoller extends Application {
                 };
             });
 
-            await game.pf2e.Check.roll(modifier, { type: 'skill-check', dc: this.dc, traits, actor }, event, async (roll, outcome, message) => {
+            await game.pf2e.Check.roll(modifier, { type: 'skill-check', dc: this.dc, traits, options, actor }, event, async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'ability', ability, roll, outcome, message);
             });
         }
@@ -223,8 +236,10 @@ class LMRTFYRoller extends Application {
         const rollMode = game.settings.get("core", "rollMode");
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
+        const extraRollOptions = this.extractExtraRollOptions(this.extraRollOptions);
+
         for (let actor of this.actors) {
-            await actor.saves[save_id].check.roll({ event, dc: this.dc, traits: this.traits, callback: async (roll, outcome, message) => {
+            await actor.saves[save_id].check.roll({ event, dc: this.dc, traits: this.traits, extraRollOptions, callback: async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'save', save_id, roll, outcome, message);
             }});
         }
@@ -241,12 +256,14 @@ class LMRTFYRoller extends Application {
         const rollMode = game.settings.get("core", "rollMode");
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
+        const extraRollOptions = this.extractExtraRollOptions(this.extraRollOptions);
+
         for (let actor of this.actors) {
             const check = actor.skills[skill_id].check;
 
             if (!check) continue;
 
-            await check.roll({ event, dc: this.dc, traits: this.traits, callback: async (roll, outcome, message) => {
+            await check.roll({ event, dc: this.dc, traits: this.traits, extraRollOptions, callback: async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'skill', skill_id, roll, outcome, message);
             }});
         }
@@ -263,10 +280,12 @@ class LMRTFYRoller extends Application {
         const rollMode = game.settings.get("core", "rollMode");
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
+        const extraRollOptions = this.extractExtraRollOptions(this.extraRollOptions);
+
         for (let actor of this.actors) {
             const check = actor.perception ?? actor.attributes.perception;
 
-            await check.roll({ event, dc: this.dc, traits: this.traits, callback: async (roll, outcome, message) => {
+            await check.roll({ event, dc: this.dc, traits: this.traits, extraRollOptions, callback: async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'perception', 'perception', roll, outcome, message);
             }});
         }

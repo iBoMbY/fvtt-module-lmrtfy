@@ -15,7 +15,6 @@ class LMRTFYPicker extends FormApplication {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.title = game.i18n.localize("LMRTFY.Title");
-        options.id = "lmrtfy";
         options.template = "modules/lmrtfy_pf2e/templates/pick-chars.html";
         options.closeOnSubmit = false;
         options.popOut = true;
