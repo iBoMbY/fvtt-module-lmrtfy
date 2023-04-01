@@ -303,7 +303,7 @@ class LMRTFYRoller extends Application {
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
 
         for (let actor of this.actors) {
-            const check = actor.attributes.initiative;
+            const check = actor.initiative;
 
             await check.roll({ event, callback: async (roll, outcome, message) => {
                 if (this.rollId) {
