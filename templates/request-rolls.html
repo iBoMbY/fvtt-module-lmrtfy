@@ -82,6 +82,56 @@
     </fieldset>
 
     <fieldset>
+        {{#each selected.extraRollNotes}}
+        <div class="form-group">
+            <label>&nbsp;{{localize "PF2E.RuleElement.Note"}} {{@index}}:</label>
+            <input type="hidden" name="extraRollNoteIndex" value="{{@index}}"/>
+        </div>
+
+        <div class="form-group">
+            <label>&nbsp;{{localize "PF2E.RuleEditor.General.Selector"}}</label>
+            <input type="text" name="extraRollNoteSelector{{@index}}" value="{{this.selector}}" placeholder='' data-dtype="String"/>
+        </div>
+
+        <div class="form-group">
+            <label>&nbsp;{{localize "PF2E.RuleEditor.Note.Title"}}</label>
+            <input type="text" name="extraRollNoteTitle{{@index}}" value="{{this.title}}" placeholder='' data-dtype="String"/>
+        </div>
+
+        <div class="form-group">
+            <label>&nbsp;{{localize "PF2E.RuleEditor.Note.Text"}}</label>
+            <input type="text" name="extraRollNoteText{{@index}}" value="{{this.text}}" placeholder='' data-dtype="String"/>
+        </div>
+
+        <div class="form-group">
+            <label>&nbsp;{{localize "PF2E.RuleEditor.General.Predicate"}}</label>
+            <input type="text" name="extraRollNotePredicate{{@index}}" value="{{this.predicate}}" placeholder='' data-dtype="String"/>
+        </div>
+
+        <div class="form-group">
+            <label>&nbsp;{{localize "PF2E.RuleEditor.Note.Outcome"}}</label>
+            <select id="test1234" name="extraRollNoteOutcome{{@index}}" data-placeholder="Begin typing a name to filter..." multiple class="chosen-select" data-dtype="String">
+            <option value=""></option>
+            {{#each ../outcomes as |name key|}}
+            <option value="{{key}}" {{#if (lmrtfy-contains ../outcome key)}}selected{{/if}}>{{localize name}}</option>
+            {{/each}}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>&nbsp;{{localize "LMRTFY.Visibility"}}</label>
+            <select name="extraRollNoteVisibility{{@index}}" id="extraRollNoteVisibility{{@index}}-options" data-dtype="String">
+                <option value="gm" {{#if (lmrtfy-isEqual this.visibility "gm")}}selected{{/if}}>{{localize "USER.RoleGamemaster"}}</option>
+                <option value="owner" {{#if (lmrtfy-isEqual this.visibility "owner")}}selected{{/if}}>{{localize "OWNERSHIP.OWNER"}}</option>
+                <option value="all" {{#if (lmrtfy-isEqual this.visibility "all")}}selected{{/if}}>{{localize "OWNERSHIP.AllPlayers"}}</option>
+            </select>
+        </div>
+        {{/each}}
+
+        <button type="button" class="add-extra-roll-note" name="submit" value="1"><i class="fas fa-plus-square"></i>{{localize "LMRTFY.AddRoleNote"}}</button>
+    </fieldset>
+
+    <fieldset>
         <div class="form-group">
             <label>{{localize "LMRTFY.Extras"}}</label>
                 

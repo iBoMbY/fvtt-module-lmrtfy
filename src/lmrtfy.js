@@ -60,6 +60,12 @@ class LMRTFY {
         LMRTFY.advantageRollEvent = { shiftKey: false, altKey: true, ctrlKey: false };
         LMRTFY.disadvantageRollEvent = { shiftKey: false, altKey: false, ctrlKey: true };
         LMRTFY.specialRolls = { 'initiative': true, 'deathsave': true, 'perception': true };
+        LMRTFY.outcomes = {
+            criticalFailure: "PF2E.Check.Result.Degree.Check.criticalFailure",
+            failure: "PF2E.Check.Result.Degree.Check.failure",
+            success: "PF2E.Check.Result.Degree.Check.success",
+            criticalSuccess: "PF2E.Check.Result.Degree.Check.criticalSuccess",
+        };
 
         if (game.settings.get('lmrtfy_pf2e', 'deselectOnRequestorRender')) {
             Hooks.on("renderLMRTFYRequestor", () => {
@@ -277,6 +283,84 @@ class LMRTFY {
         }
 
         return {rank, mod};
+    }
+}
+
+class LMRTFYRollNoteSource {
+    constructor(selector = "all", text = "", outcome = undefined, title = undefined, predicate = undefined, visibility = "all") {
+        this._selector = selector;
+        this.predicate = predicate;
+        this._outcome = outcome ?? [];
+        this._visibility = visibility ?? null;
+        this._title = title ?? null;
+        this._text = text;
+    }
+
+    _predicate = [];
+
+    get selector() {
+        return this._selector;
+    }
+
+    set predicate(value) {
+        try 
+        {
+            if (!value || value.length == 0) {
+                this._predicate = [];
+                return;
+            }
+
+            this._predicate = JSON.parse(value);
+
+            if (!Array.isArray(this._predicate)) {
+                this._predicate = [this._predicate];
+            }
+        }
+        catch(e)
+        {
+            ui.notifications.warn(e);
+            this._predicate = value;
+        }
+    }
+
+    get predicate() {
+        return JSON.stringify(this._predicate);
+    }
+
+    get outcome() {
+        return this._outcome;
+    }
+
+    get visibility() {
+        return this._visibility;
+    }
+
+    get title() {
+        return this._title;
+    }
+
+    get text() {
+        return this._text;
+    }
+
+    toJSON() {
+        return {
+            selector: this._selector,
+            predicate: this._predicate,
+            outcome: this._outcome,
+            visibility: this._visibility,
+            title: this._title,
+            text: this._text,
+        }
+      }
+
+    isInitial() {
+        return ( !this._selector || this._selector === "all")
+            && ( !this._predicate || this._predicate.length == 0 )
+            && ( !this._outcome || this._outcome.length == 0 )
+            && ( !this._visibility || this._visibility === "all" )
+            && ( !this._title || this._title.length == 0 )
+            && ( !this._text  || this._text.length == 0 );
     }
 }
 

@@ -51,5 +51,6 @@
     "LMRTFY.Enabled": "Enabled",
     "LMRTFY.DCLabel": "Check DC",
     "LMRTFY.ExtraRollOptions": "Extra Roll Options",
-    "LMRTFY.ExtraPlaceholder": "action:recall-knowledge, hunted-prey"
+    "LMRTFY.ExtraPlaceholder": "action:recall-knowledge, hunted-prey",
+    "LMRTFY.AddRoleNote": "Add Roll Note"
 }

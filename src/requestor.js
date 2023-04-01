@@ -7,6 +7,12 @@ class LMRTFYRequestor extends FormApplication {
         game.users.apps.push(this);
 
         this.selected = data ?? {};
+
+        if (!this.selected.extraRollNotes)
+        {
+            this.selected.extraRollNotes = [];
+        }
+
         this.actors = {};
         this.selected_actors = [];
 
@@ -40,6 +46,14 @@ class LMRTFYRequestor extends FormApplication {
 
             return false;
         });
+
+        Handlebars.registerHelper('lmrtfy-isEqual', function (val1, val2) {
+          return val1 === val2;
+        });
+
+        Handlebars.registerHelper('lmrtfy-contains', function (arr, val) {
+            return Array.isArray(arr) && arr.includes(val);
+        });        
     }
 
     static get defaultOptions() {
@@ -86,6 +100,7 @@ class LMRTFYRequestor extends FormApplication {
             rollModes: CONFIG.Dice.rollModes,
             traits: LMRTFY.traits,
             selected: this.selected,
+            outcomes: LMRTFY.outcomes,
         };
     }
 
@@ -106,6 +121,7 @@ class LMRTFYRequestor extends FormApplication {
         this.element.find(".select-all").click((event) => this._setActorSelection(event, true));
         this.element.find(".deselect-all").click((event) => this._setActorSelection(event, false));
         this.element.find(".lmrtfy-save-roll").click(this._onSubmit.bind(this));
+        this.element.find(".add-extra-roll-note").click(this._onSubmit.bind(this))
         this.element.find(".lmrtfy-extra-initiative").hover(this._onHoverAbility.bind(this));
         this.element.find(".lmrtfy-extra-perception").hover(this._onHoverAbility.bind(this));
         this.element.find(".lmrtfy-ability").hover(this._onHoverAbility.bind(this));
@@ -285,14 +301,14 @@ class LMRTFYRequestor extends FormApplication {
     }
 
     close(...args) {
-        this.selected = {};
+        this.selected = {
+            extraRollNotes: []
+        };
         return super.close(...args);
     }
 
-    async _updateObject(event, formData) {
-        //console.log("LMRTFY submit: ", formData)
-        const saveAsMacro = $(event.currentTarget).hasClass("lmrtfy-save-roll")
-        const keys = Object.keys(formData)
+    parseFormData(formData) {
+        const keys = Object.keys(formData);
         const actors = keys.filter(k => formData[k] && k.startsWith("actor-")).map(k => k.slice(6));
         const abilities = keys.filter(k => formData[k] && k.startsWith("check-")).map(k => k.slice(6));
         const saves = keys.filter(k => formData[k] && k.startsWith("save-")).map(k => k.slice(5));
@@ -300,14 +316,7 @@ class LMRTFYRequestor extends FormApplication {
         const formula = formData.formula.trim();
         const { mode, title, message, extraRollOptions } = formData;
         const traits = formData.traits;
-        
-        if (actors.length === 0 ||
-             (!message && abilities.length === 0 && saves.length === 0 && skills.length === 0 &&
-                formula.length === 0 && !formData['extra-death-save'] && !formData['extra-initiative'] && !formData['extra-perception'])) {
-            ui.notifications.warn(game.i18n.localize("LMRTFY.NothingNotification"));
-            return;
-        }
-        
+
         let dc = undefined;
         const dcValue = parseInt(formData.dc);
 
@@ -317,8 +326,25 @@ class LMRTFYRequestor extends FormApplication {
                 visibility: formData.visibility
             }
         }
-        
-        const socketData = {
+
+        let extraRollNotes = [];
+
+        if (formData.extraRollNoteIndex) {
+            const extraRollNoteIndex = Array.isArray(formData.extraRollNoteIndex) ? formData.extraRollNoteIndex : [formData.extraRollNoteIndex];
+
+            extraRollNotes = extraRollNoteIndex.map(index => {
+                return new LMRTFYRollNoteSource(
+                    formData["extraRollNoteSelector"+index],
+                    formData["extraRollNoteText"+index], 
+                    formData["extraRollNoteOutcome"+index], 
+                    formData["extraRollNoteTitle"+index],
+                    formData["extraRollNotePredicate"+index], 
+                    formData["extraRollNoteVisibility"+index],
+                );
+            }).filter(note => !note.isInitial());
+        }
+
+        return {
             actors,
             abilities,
             saves,
@@ -334,22 +360,48 @@ class LMRTFYRequestor extends FormApplication {
             dc,
             traits,
             extraRollOptions,
+            extraRollNotes,
+        };
+    }
+
+    async _updateObject(event, formData) {
+        //console.log("LMRTFY submit: ", formData)
+
+        const addExtraRollNote = $(event.currentTarget).hasClass("add-extra-roll-note");
+
+        if (addExtraRollNote) {
+            this.selected = this.parseFormData(formData);
+            this.selected.extraRollNotes.push(new LMRTFYRollNoteSource());
+            this.render(true);
+            return;
         }
+
+        const saveAsMacro = $(event.currentTarget).hasClass("lmrtfy-save-roll");
+
+        const socketData = this.parseFormData(formData);
+        
+        if (socketData.actors.length === 0 ||
+             (!socketData.message && socketData.abilities.length === 0 && socketData.saves.length === 0 && socketData.skills.length === 0 &&
+                socketData.formula.length === 0 && !socketData.deathsave && !socketData.initiative && !socketData.perception)) {
+            ui.notifications.warn(game.i18n.localize("LMRTFY.NothingNotification"));
+            return;
+        }
+        
         // console.log("LMRTFY socket send : ", socketData)
         if (saveAsMacro) {
 
-            const actorTargets = actors.map(a => this.actors[a]).filter(a => a).map(a => a.name).join(", ");
-            const scriptContent = `// ${title} ${message ? " -- " + message : ""}\n` +
+            const actorTargets = socketData.actors.map(a => this.actors[a]).filter(a => a).map(a => a.name).join(", ");
+            const scriptContent = `// ${socketData.title} ${socketData.message ? " -- " + socketData.message : ""}\n` +
                 `// Request rolls from ${actorTargets}\n` +
-                `// Abilities: ${abilities.map(a => LMRTFY.abilities[a]).filter(s => s).join(", ")}\n` +
-                `// Saves: ${saves.map(a => LMRTFY.saves[a]).filter(s => s).join(", ")}\n` +
-                `// Skills: ${skills.map(s => LMRTFY.skills[s]).filter(s => s).join(", ")}\n` +
+                `// Abilities: ${socketData.abilities.map(a => LMRTFY.abilities[a]).filter(s => s).join(", ")}\n` +
+                `// Saves: ${socketData.saves.map(a => LMRTFY.saves[a]).filter(s => s).join(", ")}\n` +
+                `// Skills: ${socketData.skills.map(s => LMRTFY.skills[s]).filter(s => s).join(", ")}\n` +
                 `const data = ${JSON.stringify(socketData, null, 2)};\n\n` +
                 `game.socket.emit('module.lmrtfy_pf2e', data);\n` +
                 `// alternative (preset request window): LMRTFY.requestRoll(data);\n` +
                 `// alternative (only pick chars): LMRTFY.pickActorsAndSend(data);\n`;
             const macro = await Macro.create({
-                name: "LMRTFY: " + (message || title),
+                name: "LMRTFY: " + (socketData.message || socketData.title),
                 type: "script",
                 scope: "global",
                 command: scriptContent,

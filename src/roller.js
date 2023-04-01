@@ -20,6 +20,7 @@ class LMRTFYRoller extends Application {
         this.rollResults = new Map();
         this.traits = data.traits;
         this.extraRollOptions = data.extraRollOptions;
+        this.extraRollNotes = data.extraRollNotes;
     }
 
     static get defaultOptions() {
@@ -219,7 +220,7 @@ class LMRTFYRoller extends Application {
                 };
             });
 
-            await game.pf2e.Check.roll(modifier, { type: 'skill-check', dc: this.dc, traits, options, actor }, event, async (roll, outcome, message) => {
+            await game.pf2e.Check.roll(modifier, { type: 'skill-check', dc: this.dc, traits, notes: this.extraRollNotes, options, actor }, event, async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'ability', ability, roll, outcome, message);
             });
         }
@@ -239,7 +240,7 @@ class LMRTFYRoller extends Application {
         const extraRollOptions = this.extractExtraRollOptions(this.extraRollOptions);
 
         for (let actor of this.actors) {
-            await actor.saves[save_id].check.roll({ event, dc: this.dc, traits: this.traits, extraRollOptions, callback: async (roll, outcome, message) => {
+            await actor.saves[save_id].check.roll({ event, dc: this.dc, traits: this.traits, extraRollOptions, extraRollNotes: this.extraRollNotes, callback: async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'save', save_id, roll, outcome, message);
             }});
         }
@@ -263,7 +264,7 @@ class LMRTFYRoller extends Application {
 
             if (!check) continue;
 
-            await check.roll({ event, dc: this.dc, traits: this.traits, extraRollOptions, callback: async (roll, outcome, message) => {
+            await check.roll({ event, dc: this.dc, traits: this.traits, extraRollOptions, extraRollNotes: this.extraRollNotes, callback: async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'skill', skill_id, roll, outcome, message);
             }});
         }
@@ -285,7 +286,7 @@ class LMRTFYRoller extends Application {
         for (let actor of this.actors) {
             const check = actor.perception ?? actor.attributes.perception;
 
-            await check.roll({ event, dc: this.dc, traits: this.traits, extraRollOptions, callback: async (roll, outcome, message) => {
+            await check.roll({ event, dc: this.dc, traits: this.traits, extraRollOptions, extraRollNotes: this.extraRollNotes, callback: async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'perception', 'perception', roll, outcome, message);
             }});
         }
