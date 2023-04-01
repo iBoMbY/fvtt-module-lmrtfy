@@ -12,6 +12,10 @@ class LMRTFYRequestor extends FormApplication {
         {
             this.selected.extraRollNotes = [];
         }
+        else
+        {
+            this.selected.extraRollNotes = this.selected.extraRollNotes.map(n => new LMRTFYRollNoteSource(n.selector, n.text, n.outcome, n.title, n.predicate, n.visibility));
+        }
 
         this.actors = {};
         this.selected_actors = [];
