@@ -307,9 +307,7 @@ class LMRTFYRoller extends Application {
             const check = actor.initiative;
 
             await check.roll({ event, callback: async (roll, outcome, message) => {
-                if (this.rollId) {
-                    LMRTFY.handleCallback(actor.id, 'initiative', check.ability, this.rollId, roll, outcome, message);
-                }
+                this.handleCallback(actor.id, 'initiative', check.ability, roll, outcome, message);
             }});
         }
 
