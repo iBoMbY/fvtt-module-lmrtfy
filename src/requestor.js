@@ -126,6 +126,7 @@ class LMRTFYRequestor extends FormApplication {
         this.element.find(".deselect-all").click((event) => this._setActorSelection(event, false));
         this.element.find(".lmrtfy-save-roll").click(this._onSubmit.bind(this));
         this.element.find(".add-extra-roll-note").click(this._onSubmit.bind(this))
+        this.element.find(".lmrtfy-clear-all").click(this._onSubmit.bind(this))
         this.element.find(".lmrtfy-extra-initiative").hover(this._onHoverAbility.bind(this));
         this.element.find(".lmrtfy-extra-perception").hover(this._onHoverAbility.bind(this));
         this.element.find(".lmrtfy-ability").hover(this._onHoverAbility.bind(this));
@@ -304,10 +305,15 @@ class LMRTFYRequestor extends FormApplication {
         }
     }
 
-    close(...args) {
+    initializeData() {
         this.selected = {
             extraRollNotes: []
         };
+        this.selected_actors = [];
+    }
+
+    close(...args) {
+        this.initializeData();
         return super.close(...args);
     }
 
@@ -370,6 +376,14 @@ class LMRTFYRequestor extends FormApplication {
 
     async _updateObject(event, formData) {
         //console.log("LMRTFY submit: ", formData)
+
+        const clearAll = $(event.currentTarget).hasClass("lmrtfy-clear-all");
+
+        if (clearAll) {
+            this.initializeData();
+            this.render(true);
+            return;
+        }
 
         const addExtraRollNote = $(event.currentTarget).hasClass("add-extra-roll-note");
 
