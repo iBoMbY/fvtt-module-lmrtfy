@@ -9,7 +9,7 @@
   ],
   "url": "https://github.com/iBoMbY/fvtt-module-lmrtfy",
   "bugs": "https://github.com/iBoMbY/fvtt-module-lmrtfy/issues",
-  "version": "4.22",
+  "version": "4.23",
   "scripts": [
     "src/lmrtfy.js",
     "src/requestor.js",

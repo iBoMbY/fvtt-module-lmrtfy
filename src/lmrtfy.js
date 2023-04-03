@@ -73,9 +73,45 @@ class LMRTFY {
             })
         }
 
-        LMRTFY.traits = CONFIG.PF2E.actionTraits;
+        const traits = new Map();
+        
+        LMRTFY.addObjectToMap(CONFIG.PF2E.actionTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.alignmentTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.ancestryItemTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.ancestryTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.armorTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.classTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.consumableTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.creatureTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.damageTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.equipmentTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.featTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.hazardTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.magicSchools, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.magicTraditions, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.npcAttackTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.otherArmorTags, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.otherConsumableTags, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.otherWeaponTags, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.preciousMaterials, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.spellOtherTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.spellTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.vehicleTraits, traits);
+        LMRTFY.addObjectToMap(CONFIG.PF2E.weaponTraits, traits);
+
+        LMRTFY.traits = Object.fromEntries(traits);
 
         LMRTFY.rollResult = new Map();
+    }
+
+    static addObjectToMap(obj, map) {
+        if (obj) {
+            Object.keys(obj).forEach(key => {
+                if (!map.has(key)) {
+                    map.set(key, obj[key]);
+                }
+            });
+        }
     }
 
     static onMessage(data) {
