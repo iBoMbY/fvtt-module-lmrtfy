@@ -24,11 +24,6 @@
 
     <div class="lmrtfy-note">{{note}}</div>
 
-    {{#each abilities as |entry ability|}}
-    <div>
-        <button type="button" class="lmrtfy-ability-check" data-ability={{ability}}>{{localize "LMRTFY.AbilityCheck"}} {{localize entry.name}} ({{entry.breakdown}})</button>
-    </div>
-    {{/each}}
     {{#each saves as |entry ability|}}
     <div>
         <button type="button" class="lmrtfy-ability-save" data-ability="{{ability}}">{{localize "LMRTFY.SavingThrow"}} {{localize entry.name}} ({{entry.breakdown}})</button>
@@ -39,21 +34,6 @@
         <button type="button" class="lmrtfy-skill-check" data-skill="{{skill}}">{{localize "LMRTFY.SkillCheck"}} {{localize entry.name}} ({{entry.breakdown}})</button>
     </div>
     {{/each}}
-    {{#if customFormula}}
-    <div>
-        <button type="button" class="lmrtfy-custom-formula" data-formula="{{customFormula}}">{{localize "LMRTFY.CustomFormula"}} {{customFormula}}</button>
-    </div>
-    {{/if}}
-    {{#if initiative}}
-    <div>
-        <button type="button" class="lmrtfy-initiative">{{localize "LMRTFY.Initiative"}} ({{initiative_breakdown}})</button>
-    </div>
-    {{/if}}
-    {{#if deathsave}}
-    <div>
-        <button type="button" class="lmrtfy-death-save">{{localize "LMRTFY.DeathSave"}}</button>
-    </div>
-    {{/if}}
     {{#if perception}}
     <div>
         <button type="button" class="lmrtfy-perception">{{localize "LMRTFY.Perception"}} ({{perception_breakdown}})</button>

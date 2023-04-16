@@ -96,7 +96,6 @@ class LMRTFYRequestor extends FormApplication {
 
         return {
             actors,
-            abilities: LMRTFY.abilities,
             saves: LMRTFY.saves,
             skills,
             lore_skills,
@@ -127,11 +126,6 @@ class LMRTFYRequestor extends FormApplication {
         this.element.find(".lmrtfy-save-roll").click(this._onSubmit.bind(this));
         this.element.find(".add-extra-roll-note").click(this._onSubmit.bind(this))
         this.element.find(".lmrtfy-clear-all").click(this._onSubmit.bind(this))
-        this.element.find(".lmrtfy-extra-initiative").hover(this._onHoverAbility.bind(this));
-        this.element.find(".lmrtfy-extra-perception").hover(this._onHoverAbility.bind(this));
-        this.element.find(".lmrtfy-ability").hover(this._onHoverAbility.bind(this));
-        //this.element.find(".lmrtfy-skill").hover(this._onHoverAbility.bind(this));
-        //this.element.find(".lmrtfy-lore-skill").hover(this._onHoverAbility.bind(this));
         const actors = this.element.find(".lmrtfy-actor");
         actors.hover(this._onHoverActor.bind(this));
         actors.click(this._onClickActor.bind(this));
@@ -166,123 +160,7 @@ class LMRTFYRequestor extends FormApplication {
         this._setSelectedActors();
         this._setActiveLoreSkills();
     }
-
-    _buildAbilityTooltip(get_modifier) {
-        const table = document.createElement("TABLE");
-
-        for (const actor of this.selected_actors) {
-            const modifier = get_modifier(actor);
-
-            // for lore skills
-            if (!modifier) continue;
-
-            const {rank, mod} = LMRTFY.getModifierBreakdown(modifier);
-
-            const row = document.createElement("TR");
-
-            let col = document.createElement("TD");
-            col.textContent = actor.name;
-            row.appendChild(col);
-
-            col = document.createElement("TD");
-            col.textContent = rank;
-            row.appendChild(col);
-
-            col = document.createElement("TD");
-            col.textContent = mod;
-            row.appendChild(col);
-
-            table.appendChild(row);
-        }
-
-        const tooltip = document.createElement("DIV");
-
-        tooltip.classList.add("tooltip");
-
-        tooltip.appendChild(table);
-
-        return tooltip;
-    }
     
-    _onHoverAbility(event) {
-        event.preventDefault();
-        const div = event.currentTarget;
-
-        // Remove any existing tooltip
-        const tooltip = div.querySelector(".tooltip");
-        if (tooltip) div.removeChild(tooltip);
-
-        if (this.selected_actors.length == 0) return;
-
-        // Handle hover-in
-        if (event.type === "mouseenter") {
-            const input = div.querySelector("input");
-
-            if (input.disabled) return;
-
-            let tooltip;
-
-            switch (input.name.slice(0,5)) {
-                case "check":
-                    tooltip = this._buildAbilityTooltip((actor) => { return LMRTFY.buildAbilityModifier(actor, input.dataset.id); });
-                    break;
-                case "skill":
-                    tooltip = this._buildAbilityTooltip((actor) => { return actor.skills[input.dataset.id]; });
-                    break;
-                case "save-":
-                    tooltip = this._buildAbilityTooltip((actor) => { return actor.saves[input.dataset.id]; });
-                    break;
-                case "extra":
-                    switch (input.name) {
-                        case "extra-initiative":
-                            tooltip = this._buildAbilityTooltip((actor) => { return actor.attributes.initiative; });
-                            break;
-                        case "extra-perception":
-                            tooltip = this._buildAbilityTooltip((actor) => { return actor.attributes.perception; });
-                            break;
-                        default: 
-                            return;
-                    }
-                    break;
-                default: 
-                    return;
-            }
-
-            div.appendChild(tooltip);
-
-            const window_box = this.element.find(".lmrtfy .window-content").prevObject.get(0).getBoundingClientRect();
-            const div_box = div.getBoundingClientRect();
-            const tooltip_box = tooltip.getBoundingClientRect();
-
-            // calculate top relative to bottom of div-element
-            let new_top = (div_box.bottom - window_box.top) + 5;
-
-            // but check if we are over the bottom edge of the window
-            const new_bottom = window_box.top + new_top + tooltip_box.height;
-            let overflow = new_bottom - window_box.bottom;
-
-            // if so move the tooltip over the current div
-            if (overflow > 0) {
-                new_top = (div_box.top - window_box.top) - tooltip_box.height - 5;
-            }
-
-            // center tooltip to the middle of the div
-            let new_left = (div_box.left - window_box.left) - (tooltip_box.width / 2 - div_box.width / 2);
-
-            // but check if we are over the ride edge of the window
-            const new_right = window_box.left + new_left + tooltip_box.width;
-            overflow = new_right - window_box.right;
-
-            // if so move the tooltip left by the overflow + 1
-            if (overflow > 0) {
-                new_left -= overflow + 1;
-            }
-
-            tooltip.style.top = `${new_top}px`;
-            tooltip.style.left = `${new_left}px`;
-        }
-    }
-
     // From _onHoverMacro
     _onHoverActor(event) {
         event.preventDefault();
@@ -320,13 +198,11 @@ class LMRTFYRequestor extends FormApplication {
     parseFormData(formData) {
         const keys = Object.keys(formData);
         const actors = keys.filter(k => formData[k] && k.startsWith("actor-")).map(k => k.slice(6));
-        const abilities = keys.filter(k => formData[k] && k.startsWith("check-")).map(k => k.slice(6));
         const saves = keys.filter(k => formData[k] && k.startsWith("save-")).map(k => k.slice(5));
         const skills = formData.skills ?? [];
         if (formData['lore-skills']?.length > 0 ) {
             skills.push(...formData['lore-skills']);
         }
-        const formula = formData.formula ? formData.formula.trim() : undefined;
         const { mode, title, message, extraRollOptions } = formData;
         const traits = formData.traits;
 
@@ -359,15 +235,11 @@ class LMRTFYRequestor extends FormApplication {
 
         return {
             actors,
-            abilities,
             saves,
             skills,
             mode,
             title,
             message,
-            formula,
-            deathsave: formData['extra-death-save'],
-            initiative: formData['extra-initiative'],
             perception: formData['extra-perception'],
             "flat-check": formData['extra-flat-check'],
             chooseOne: formData['choose-one'],
@@ -403,8 +275,7 @@ class LMRTFYRequestor extends FormApplication {
         const socketData = this.parseFormData(formData);
         
         if (socketData.actors.length === 0 ||
-             (!socketData.message && socketData.abilities.length === 0 && socketData.saves.length === 0 && socketData.skills.length === 0 &&
-                (!socketData.formula || socketData.formula.length === 0) && !socketData.deathsave && !socketData.initiative && !socketData.perception && !socketData['flat-check'])) {
+             (!socketData.message && socketData.saves.length === 0 && socketData.skills.length === 0 && !socketData.perception && !socketData['flat-check'])) {
             ui.notifications.warn(game.i18n.localize("LMRTFY.NothingNotification"));
             return;
         }
@@ -415,7 +286,6 @@ class LMRTFYRequestor extends FormApplication {
             const actorTargets = socketData.actors.map(a => this.actors[a]).filter(a => a).map(a => a.name).join(", ");
             const scriptContent = `// ${socketData.title} ${socketData.message ? " -- " + socketData.message : ""}\n` +
                 `// Request rolls from ${actorTargets}\n` +
-                `// Abilities: ${socketData.abilities.map(a => LMRTFY.abilities[a]).filter(s => s).join(", ")}\n` +
                 `// Saves: ${socketData.saves.map(a => LMRTFY.saves[a]).filter(s => s).join(", ")}\n` +
                 `// Skills: ${socketData.skills.map(s => LMRTFY.skills[s]).filter(s => s).join(", ")}\n` +
                 `const data = ${JSON.stringify(socketData, null, 2)};\n\n` +

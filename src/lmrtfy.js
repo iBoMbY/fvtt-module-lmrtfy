@@ -35,7 +35,6 @@ class LMRTFY {
         LMRTFY.saveRollMethod = 'rollSave';
         LMRTFY.abilityRollMethod = 'rollAbility';
         LMRTFY.skillRollMethod = 'rollSkill';
-        LMRTFY.abilities = CONFIG.PF2E.abilities;
         //LMRTFY.skills = CONFIG.PF2E.skills; <- broken
         LMRTFY.skills = {
             acrobatics: "PF2E.SkillAcr",
@@ -59,7 +58,7 @@ class LMRTFY {
         LMRTFY.normalRollEvent = { shiftKey: false, altKey: false, ctrlKey: false };
         LMRTFY.advantageRollEvent = { shiftKey: false, altKey: true, ctrlKey: false };
         LMRTFY.disadvantageRollEvent = { shiftKey: false, altKey: false, ctrlKey: true };
-        LMRTFY.specialRolls = { 'initiative': false, 'deathsave': false, 'perception': true, 'flat-check': true, formula: false };
+        LMRTFY.specialRolls = { 'perception': true, 'flat-check': true };
         LMRTFY.outcomes = {
             criticalFailure: "PF2E.Check.Result.Degree.Check.criticalFailure",
             failure: "PF2E.Check.Result.Degree.Check.failure",
@@ -141,7 +140,7 @@ class LMRTFY {
             
             data.skills = data.skills.filter(skill => actors.find(actor => actor.skills[skill]));
 
-            if (data.abilities.length == 0 && data.saves.length == 0 && data.skills.length == 0 && (!data.formula || data.formula.length === 0) && !data.deathsave && !data.initiative && !data.perception && !data['flat-check']) return;
+            if (data.saves.length == 0 && data.skills.length == 0 && !data.perception && !data['flat-check']) return;
 
             new LMRTFYRoller(actors, data).render(true);
         }
@@ -272,27 +271,6 @@ class LMRTFY {
             .flat();
     }
 
-    static buildAbilityModifier(actor, ability) {
-        // Start with basic ability modifier
-        //const modifiers = [game.pf2e.AbilityModifier.fromScore(ability, actor.abilities[ability].value)];
-        const modifiers = [new game.pf2e.Modifier({
-            slug: ability,
-            label: game.i18n.localize(LMRTFY.abilities[ability]),
-            modifier: Math.floor((actor.abilities[ability].value - 10) / 2),
-            type: "ability",
-            ability
-        })];
-
-        // Add conditional modifiers from actor
-        let domains = actor.getRollOptions();
-        domains.push(`${ability}-based`, 'ability-check', 'all');
-
-        modifiers.push(...this.extractModifiers(actor.synthetics.statisticsModifiers, domains));
-
-        // build and return combined StatisticModifier from modifier list
-        return new game.pf2e.StatisticModifier(`${game.i18n.localize('LMRTFY.AbilityCheck')} ${game.i18n.localize(LMRTFY.abilities[ability])}`, modifiers, domains);
-    } 
-    
     static getModifierBreakdown(modifier) {
         const proficencyLevel = [
             'PF2E.ProficiencyLevel0', // untrained

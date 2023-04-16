@@ -136,19 +136,6 @@
             <label>{{localize "LMRTFY.Extras"}}</label>
                 
             <div class="lmrtfy-extras">
-                {{#if specialRolls.initiative}}
-                <div class="lmrtfy-extra-initiative">
-                    <input type="checkbox" name="extra-initiative" id="lmrtf-extra-initiative" data-dtype="Boolean" {{#if (lmrtfy-isSelected "initiative")}}checked{{/if}} />
-                    <label for="lmrtf-extra-initiative">{{localize "LMRTFY.Initiative"}}</label>
-                    
-                </div>
-                {{/if}}
-                {{#if specialRolls.deathsave}}
-                <div class="lmrtfy-extra-death-save">
-                    <input type="checkbox" name="extra-death-save" id="lmrtf-extra-death-save" data-dtype="Boolean" {{#if (lmrtfy-isSelected "deathsave")}}checked{{/if}} />
-                    <label for="lmrtf-extra-death-save">{{localize "LMRTFY.DeathSave"}}</label>
-                </div>
-                {{/if}}
                 {{#if specialRolls.perception}}
                 <div class="lmrtfy-extra-perception">
                     <input type="checkbox" name="extra-perception" id="lmrtf-extra-perception" data-dtype="Boolean" {{#if (lmrtfy-isSelected "perception")}}checked{{/if}} />
@@ -163,30 +150,8 @@
                 {{/if}}
             </div>
         </div>
-        {{#if specialRolls.formula}}
-        <div class="form-group">
-            <label>{{localize "LMRTFY.CustomFormula"}}</label>
-            <input type="text" name="formula" value='{{selected.formula}}' placeholder='{{localize "LMRTFY.CustomFormulaPlaceholder"}}' data-dtype="String"/>
-        </div>
-        {{/if}}
     </fieldset>
  
-    <fieldset>
-    <div class="form-group">
-        <label>{{localize "LMRTFY.AbilityChecks"}}</label>
-        
-        <div class="lmrtfy-ability-checks">
-            {{#each abilities as |name key|}}
-            <div class="lmrtfy-ability">
-                <input type="checkbox" name="check-{{key}}" id="lmrtf-check-{{key}}" data-dtype="Boolean" data-id="{{key}}" {{#if (lmrtfy-isSelected "abilities" key)}}checked{{/if}} />
-                <label for="lmrtf-check-{{key}}">{{localize name}}</label>
-                
-            </div>
-            {{/each}}
-        </div>
-    </div>
-    </fieldset>
-     
     <fieldset>
     <div class="form-group">
         <label>{{localize "LMRTFY.SavingThrows"}}</label>
