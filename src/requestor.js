@@ -323,7 +323,7 @@ class LMRTFYRequestor extends FormApplication {
         const abilities = keys.filter(k => formData[k] && k.startsWith("check-")).map(k => k.slice(6));
         const saves = keys.filter(k => formData[k] && k.startsWith("save-")).map(k => k.slice(5));
         const skills = keys.filter(k => formData[k] && k.startsWith("skill-")).map(k => k.slice(6));
-        const formula = formData.formula.trim();
+        const formula = formData.formula ? formData.formula.trim() : undefined;
         const { mode, title, message, extraRollOptions } = formData;
         const traits = formData.traits;
 
@@ -366,6 +366,7 @@ class LMRTFYRequestor extends FormApplication {
             deathsave: formData['extra-death-save'],
             initiative: formData['extra-initiative'],
             perception: formData['extra-perception'],
+            "flat-check": formData['extra-flat-check'],
             chooseOne: formData['choose-one'],
             dc,
             traits,
@@ -400,7 +401,7 @@ class LMRTFYRequestor extends FormApplication {
         
         if (socketData.actors.length === 0 ||
              (!socketData.message && socketData.abilities.length === 0 && socketData.saves.length === 0 && socketData.skills.length === 0 &&
-                socketData.formula.length === 0 && !socketData.deathsave && !socketData.initiative && !socketData.perception)) {
+                (!socketData.formula || socketData.formula.length === 0) && !socketData.deathsave && !socketData.initiative && !socketData.perception && !socketData['flat-check'])) {
             ui.notifications.warn(game.i18n.localize("LMRTFY.NothingNotification"));
             return;
         }

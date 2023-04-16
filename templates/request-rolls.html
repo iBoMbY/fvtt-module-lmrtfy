@@ -155,12 +155,20 @@
                     <label for="lmrtf-extra-perception">{{localize "LMRTFY.Perception"}}</label>
                 </div>
                 {{/if}}
+                {{#if specialRolls.flat-check}}
+                <div class="lmrtfy-extra-flat-check">
+                    <input type="checkbox" name="extra-flat-check" id="lmrtf-extra-flat-check" data-dtype="Boolean" {{#if (lmrtfy-isSelected "flat-check")}}checked{{/if}} />
+                    <label for="lmrtf-extra-flat-check">{{localize "PF2E.FlatCheck"}}</label>
+                </div>
+                {{/if}}
             </div>
         </div>
+        {{#if specialRolls.formula}}
         <div class="form-group">
             <label>{{localize "LMRTFY.CustomFormula"}}</label>
             <input type="text" name="formula" value='{{selected.formula}}' placeholder='{{localize "LMRTFY.CustomFormulaPlaceholder"}}' data-dtype="String"/>
         </div>
+        {{/if}}
     </fieldset>
  
     <fieldset>

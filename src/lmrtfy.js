@@ -59,7 +59,7 @@ class LMRTFY {
         LMRTFY.normalRollEvent = { shiftKey: false, altKey: false, ctrlKey: false };
         LMRTFY.advantageRollEvent = { shiftKey: false, altKey: true, ctrlKey: false };
         LMRTFY.disadvantageRollEvent = { shiftKey: false, altKey: false, ctrlKey: true };
-        LMRTFY.specialRolls = { 'initiative': true, 'deathsave': true, 'perception': true };
+        LMRTFY.specialRolls = { 'initiative': false, 'deathsave': false, 'perception': true, 'flat-check': true, formula: false };
         LMRTFY.outcomes = {
             criticalFailure: "PF2E.Check.Result.Degree.Check.criticalFailure",
             failure: "PF2E.Check.Result.Degree.Check.failure",
@@ -141,7 +141,7 @@ class LMRTFY {
             
             data.skills = data.skills.filter(skill => actors.find(actor => actor.skills[skill]));
 
-            if (data.abilities.length == 0 && data.saves.length == 0 && data.skills.length == 0 && data.formula.length === 0 && !data.deathsave && !data.initiative && !data.perception) return;
+            if (data.abilities.length == 0 && data.saves.length == 0 && data.skills.length == 0 && (!data.formula || data.formula.length === 0) && !data.deathsave && !data.initiative && !data.perception && !data['flat-check']) return;
 
             new LMRTFYRoller(actors, data).render(true);
         }

@@ -142,6 +142,7 @@ class LMRTFYRoller extends Application {
             initiative_breakdown,
             perception: this.data.perception ?? false,
             perception_breakdown,
+            "flat-check": this.data['flat-check'] ?? false,
             chooseOne: this.chooseOne
         };
     }
@@ -161,6 +162,9 @@ class LMRTFYRoller extends Application {
         if(LMRTFY.specialRolls['perception']) {
             this.element.find(".lmrtfy-perception").click(this._onPerception.bind(this))
         }
+        if(LMRTFY.specialRolls['flat-check']) {
+            this.element.find(".lmrtfy-flat-check").click(this._onFlatCheck.bind(this))
+        }        
     }
 
     _checkClose() {
@@ -202,7 +206,37 @@ class LMRTFYRoller extends Application {
         return result;
     }
 
-    async _makeAbilityRoll(event, rollMethod, ability) {
+    async _makeFlatCheck(event) {
+        // save the current roll mode to reset it after this roll
+        const rollMode = game.settings.get("core", "rollMode");
+        game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
+
+        const options = this.extractExtraRollOptions(this.extraRollOptions);
+
+        const modifier = new game.pf2e.StatisticModifier(game.i18n.localize('PF2E.FlatCheck'), [], ['flat-check']);
+
+        const traits = this.traits.map(trait => {
+            return {
+                name: trait,
+                label: game.i18n.localize(CONFIG.PF2E.actionTraits[trait] ?? trait),
+                description: game.i18n.localize(CONFIG.PF2E.traitsDescriptions[trait] ?? '' )
+            };
+        });
+
+        for (let actor of this.actors) {
+            await game.pf2e.Check.roll(modifier, { type: 'flat-check', dc: this.dc, traits, notes: this.extraRollNotes, options, actor }, event, async (roll, outcome, message) => {
+                this.handleCallback(actor.id, 'flat-check', roll, outcome, message);
+            });
+        }
+
+        game.settings.set("core", "rollMode", rollMode);
+
+        event.currentTarget.disabled = true;
+
+        this._checkClose();        
+    }
+
+    async _makeAbilityRoll(event, ability) {
         // save the current roll mode to reset it after this roll
         const rollMode = game.settings.get("core", "rollMode");
         game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
@@ -362,10 +396,15 @@ class LMRTFYRoller extends Application {
         this._checkClose();
     }
 
+    async _onFlatCheck(event) {
+        event.preventDefault();
+        this._makeFlatCheck(event);
+    }
+
     async _onAbilityCheck(event) {
         event.preventDefault();
         const ability = event.currentTarget.dataset.ability;
-        this._makeAbilityRoll(event, LMRTFY.abilityRollMethod, ability);
+        this._makeAbilityRoll(event, ability);
     }
 
     async _onAbilitySave(event) {

@@ -147,6 +147,7 @@ form .form-group .lmrtfy-lore-skill-checks {
 .lmrtfy-initiative,
 .lmrtfy-death-save,
 .lmrtfy-perception,
+.lmrtfy-flat-check,
 .lmrtfy-roll-table {
 	height: 48px;
 	text-align: center;
@@ -159,6 +160,7 @@ form .form-group .lmrtfy-lore-skill-checks {
 .lmrtfy-parchment .lmrtfy-initiative,
 .lmrtfy-parchment .lmrtfy-death-save,
 .lmrtfy-parchment .lmrtfy-perception,
+.lmrtfy-parchment .lmrtfy-flat-check,
 .lmrtfy-parchment .lmrtfy-roll-table {
 	background: url(../images/button.png);
 	background-repeat: no-repeat;
