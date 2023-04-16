@@ -94,28 +94,24 @@ form .form-group .lmrtfy-lore-skill-checks {
 		text-align: center;
 }
 .lmrtfy-request-roll,
-.lmrtfy-save-roll {
+.lmrtfy-save-roll,
+.lmrtfy-select-all,
+.lmrtfy-clear-all,
+.add-extra-roll-note {
 	text-align: center;
 }
 
 .lmrtfy-parchment .lmrtfy-request-roll,
-.lmrtfy-parchment .lmrtfy-save-roll {
+.lmrtfy-parchment .lmrtfy-save-roll,
+.lmrtfy-parchment .lmrtfy-select-all,
+.lmrtfy-parchment .lmrtfy-clear-all,
+.lmrtfy-parchment .add-extra-roll-note {
 	background: url(../images/button.png);
 	background-repeat: no-repeat ;
 	background-size: 100% 100%;
 	color: black;
 	height: 40px;
 }
-.select-all,
-.deselect-all {
-	flex: 1;
-}
-.lmrtfy-parchment .select-all,
-.lmrtfy-parchment .deselect-all {
-	background-color: rgba(220, 200, 160, 0.75);
-	border-radius: 10px;
-}
-
 
 /* Roller.html */
 .lmrtfy-avatar {

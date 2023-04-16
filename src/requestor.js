@@ -18,7 +18,6 @@ class LMRTFYRequestor extends FormApplication {
         }
 
         this.actors = {};
-        this.selected_actors = [];
 
         game.users.filter(user => user.character && user.character.id).forEach((user) => {
             this.actors[user.character.id] = user.character;
@@ -121,73 +120,16 @@ class LMRTFYRequestor extends FormApplication {
 
         $(".chosen-select").chosen();
 
-        this.element.find(".select-all").click((event) => this._setActorSelection(event, true));
-        this.element.find(".deselect-all").click((event) => this._setActorSelection(event, false));
+        this.element.find(".lmrtfy-select-all").click(this._onSubmit.bind(this));
         this.element.find(".lmrtfy-save-roll").click(this._onSubmit.bind(this));
         this.element.find(".add-extra-roll-note").click(this._onSubmit.bind(this))
         this.element.find(".lmrtfy-clear-all").click(this._onSubmit.bind(this))
-        const actors = this.element.find(".lmrtfy-actor");
-        actors.hover(this._onHoverActor.bind(this));
-        actors.click(this._onClickActor.bind(this));
-
-        this._setSelectedActors();
-        this._setActiveLoreSkills();
-    }
-
-    _setSelectedActors() {
-        this.selected_actors = this.element.find(".lmrtfy-actor input:checkbox:checked").toArray().map(a => this.actors[a.name.slice(6)]);
-    }
-
-    _setActiveLoreSkills() {
-        const lore_skills = this.element.find(".lmrtfy-lore-skill input").toArray();
-
-        for (let skill of lore_skills) {
-            skill.disabled = !this.selected_actors.find(actor => actor.skills[skill.dataset.id]);
-
-            if (skill.disabled) skill.checked = this.selected?.skills?.includes(skill.dataset.id) ?? false;
-        }
-    }
-
-    _setActorSelection(event, enabled) {
-        event.preventDefault();
-        this.element.find(".lmrtfy-actor input").prop("checked", enabled);
-
-        this._setSelectedActors();
-        this._setActiveLoreSkills();
-    }
-
-    _onClickActor(event) {
-        this._setSelectedActors();
-        this._setActiveLoreSkills();
-    }
-    
-    // From _onHoverMacro
-    _onHoverActor(event) {
-        event.preventDefault();
-        const div = event.currentTarget;
-
-        // Remove any existing tooltip
-        const tooltip = div.querySelector(".tooltip");
-        if (tooltip) div.removeChild(tooltip);
-
-        // Handle hover-in
-        if (event.type === "mouseenter") {
-            const actorId = div.dataset.id;
-            const actor = this.actors[actorId];
-            if (!actor) return;
-            const user = game.users.find(u => u.character && u.character._id === actor._id);
-            const tooltip = document.createElement("SPAN");
-            tooltip.classList.add("tooltip");
-            tooltip.textContent = `${actor.name}${user ? ` (${user.name})` : ''}`;
-            div.appendChild(tooltip);
-        }
     }
 
     initializeData() {
         this.selected = {
             extraRollNotes: []
         };
-        this.selected_actors = [];
     }
 
     close(...args) {
@@ -197,7 +139,7 @@ class LMRTFYRequestor extends FormApplication {
 
     parseFormData(formData) {
         const keys = Object.keys(formData);
-        const actors = keys.filter(k => formData[k] && k.startsWith("actor-")).map(k => k.slice(6));
+        const actors = formData.actors ?? [];
         const saves = keys.filter(k => formData[k] && k.startsWith("save-")).map(k => k.slice(5));
         const skills = formData.skills ?? [];
         if (formData['lore-skills']?.length > 0 ) {
@@ -252,6 +194,15 @@ class LMRTFYRequestor extends FormApplication {
 
     async _updateObject(event, formData) {
         //console.log("LMRTFY submit: ", formData)
+
+        const selectAll = $(event.currentTarget).hasClass("lmrtfy-select-all");
+
+        if (selectAll) {
+            this.selected = this.parseFormData(formData);
+            this.selected.actors = Object.keys(this.actors);
+            this.render(true);
+            return;
+        }
 
         const clearAll = $(event.currentTarget).hasClass("lmrtfy-clear-all");
 

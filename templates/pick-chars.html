@@ -3,26 +3,15 @@
     <fieldset>
         <div class="form-group">
             <label>{{localize "LMRTFY.SelectCharacters"}}</label>
-            <button type="button" class="select-all"><i class="fas fa-check-square"></i>{{localize "LMRTFY.SelectAll"}}</button>
-            <button type="button" class="deselect-all"><i class="fas fa-square"></i>{{localize "LMRTFY.SelectNone"}}</button>
+                <select name="actors" id="lmrtf-lore-skills" data-placeholder="Begin typing a name to filter..." multiple class="chosen-select" data-dtype="String">
+                    <option value=""></option>
+                    {{#each actors}}
+                    <option value="{{this.id}}" {{#if (lmrtfy-isSelected "actors" this.id)}}selected{{/if}}>{{this.name}}</option>
+                    {{/each}}
+                </select>
+            </div>
         </div>
-        <div class="form-group lmrtfy-actor-avatars">
-        {{#if selected.actors}}
-            {{#each actors}}
-                <div class="lmrtfy-actor" data-id="{{this.id}}">
-                    <input type="checkbox" name="actor-{{this.id}}" id="lmrtf-actor-{{this.id}}" data-dtype="Boolean" {{#if (lmrtfy-isSelected "actors" this.id)}}checked{{/if}} />
-                    <label for="lmrtf-actor-{{this.id}}"><img src="{{this.img}}" /></label>
-                </div>
-            {{/each}}
-        {{else}}
-            {{#each actors}}
-                <div class="lmrtfy-actor" data-id="{{this.id}}">
-                    <input type="checkbox" name="actor-{{this.id}}" id="lmrtf-actor-{{this.id}}" data-dtype="Boolean" {{#if (lmrtfy-controlledToken this)}}checked{{/if}} />
-                    <label for="lmrtf-actor-{{this.id}}"><img src="{{this.img}}" /></label>
-                </div>
-            {{/each}}
-        {{/if}}
-        </div>
+        <button type="button" class="lmrtfy-select-all"><i class="fas fa-check-square"></i>{{localize "LMRTFY.SelectAll"}}</button>
     </fieldset>
 
     <fieldset>

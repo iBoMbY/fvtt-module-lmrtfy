@@ -6,10 +6,40 @@ class LMRTFYPicker extends FormApplication {
 
         this.data = data;
         this.actors = {};
+        this.selected = {
+            actors: [],
+        };
 
         game.users.filter(user => user.character && user.character.id).forEach((user) => {
             this.actors[user.character.id] = user.character;
         });
+
+        const that = this;
+
+        Handlebars.registerHelper('lmrtfy-isSelected', function (property, key = '', subProperty = '') {
+            const prop = that.selected[property];
+
+            if (!prop)
+                return false;
+
+            if (Array.isArray(prop))
+                return prop.includes(key) ?? false;
+
+            if (typeof prop == "boolean")
+                return prop;
+
+            if (typeof prop == "string")
+              return prop === key;
+
+            if (typeof prop == "object") {
+                const sub = prop[subProperty];
+
+                if (sub)
+                    return sub === key;
+            }
+
+            return false;
+        });        
     }
 
     static get defaultOptions() {
@@ -49,43 +79,19 @@ class LMRTFYPicker extends FormApplication {
     activateListeners(html) {
         super.activateListeners(html);
 
-        this.element.find(".select-all").click((event) => this._setActorSelection(event, true));
-        this.element.find(".deselect-all").click((event) => this._setActorSelection(event, false));
+        $(".chosen-select").chosen();
 
-        const actors = this.element.find(".lmrtfy-actor");
-        actors.hover(this._onHoverActor.bind(this));
+        this.element.find(".select-all").click((event) => this._setActorSelection(event, true));
     }
 
     _setActorSelection(event, enabled) {
         event.preventDefault();
-        this.element.find(".lmrtfy-actor input").prop("checked", enabled);
-    }
-
-    // From _onHoverMacro
-    _onHoverActor(event) {
-        event.preventDefault();
-        const div = event.currentTarget;
-
-        // Remove any existing tooltip
-        const tooltip = div.querySelector(".tooltip");
-        if (tooltip) div.removeChild(tooltip);
-
-        // Handle hover-in
-        if (event.type === "mouseenter") {
-            const actorId = div.dataset.id;
-            const actor = this.actors[actorId];
-            if (!actor) return;
-            const user = game.users.find(u => u.character && u.character._id === actor._id);
-            const tooltip = document.createElement("SPAN");
-            tooltip.classList.add("tooltip");
-            tooltip.textContent = `${actor.name}${user ? ` (${user.name})` : ''}`;
-            div.appendChild(tooltip);
-        }
+        this.selected.actors = Object.keys(this.actors);
+        this.render(true);
     }
 
     async _updateObject(event, formData) {
-        const keys = Object.keys(formData)
-        const actors = keys.filter(k => formData[k] && k.startsWith("actor-")).map(k => k.slice(6));
+        const actors = formData.actors ?? [];
                 
         if (actors.length === 0) {
             ui.notifications.warn(game.i18n.localize("LMRTFY.NothingNotification"));
