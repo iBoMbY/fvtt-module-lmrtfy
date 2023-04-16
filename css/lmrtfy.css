@@ -397,3 +397,7 @@ form .form-group .lmrtfy-lore-skill-checks {
 	background-color: rgba(0, 0, 0, 0.00) !important;
 	color: var(--color-text-dark-primary) !important;
 }
+
+.lmrtfy .chosen-container .chosen-results {
+	max-height: 120px !important;
+}

@@ -205,27 +205,25 @@
     <fieldset>
         <div class="form-group">
             <label>{{localize "LMRTFY.SkillChecks"}}</label>
-            <div class="lmrtfy-skill-checks">
-                {{#each skills as |name key|}}
-                <div class="lmrtfy-skill">
-                    <input type="checkbox" name="skill-{{key}}" id="lmrtf-skill-{{key}}" data-dtype="Boolean" data-id="{{key}}" {{#if (lmrtfy-isSelected "skills" key)}}checked{{/if}} />
-                    <label for="lmrtf-skill-{{key}}">{{localize name}}</label>
-                </div>
-                {{/each}}
+                <select name="skills" id="lmrtf-skills" data-placeholder="Begin typing a name to filter..." multiple class="chosen-select" data-dtype="String">
+                    <option value=""></option>
+                    {{#each skills as |name key|}}
+                    <option value="{{key}}" {{#if (lmrtfy-isSelected "skills" key)}}selected{{/if}}>{{localize name}}</option>
+                    {{/each}}
+                </select>
             </div>
         </div>
     </fieldset>
 
     <fieldset>
         <div class="form-group">
-            <label>{{localize "PF2E.LoreSkillsHeader"}}:</label>
-            <div class="lmrtfy-lore-skill-checks">
-                {{#each lore_skills as |name key|}}
-                <div class="lmrtfy-lore-skill">
-                    <input type="checkbox" name="skill-{{key}}" id="lmrtf-skill-{{key}}" data-dtype="Boolean" data-id="{{key}}" {{#if (lmrtfy-isSelected "skills" key)}}checked{{/if}} />
-                    <label for="lmrtf-skill-{{key}}">{{name}}</label>
-                </div>
-                {{/each}}
+            <label>{{localize "PF2E.LoreSkillsHeader"}}</label>
+                <select name="lore-skills" id="lmrtf-lore-skills" data-placeholder="Begin typing a name to filter..." multiple class="chosen-select" data-dtype="String">
+                    <option value=""></option>
+                    {{#each lore_skills as |name key|}}
+                    <option value="{{key}}" {{#if (lmrtfy-isSelected "skills" key)}}selected{{/if}}>{{localize name}}</option>
+                    {{/each}}
+                </select>
             </div>
         </div>
     </fieldset>

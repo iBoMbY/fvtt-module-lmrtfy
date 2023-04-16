@@ -130,8 +130,8 @@ class LMRTFYRequestor extends FormApplication {
         this.element.find(".lmrtfy-extra-initiative").hover(this._onHoverAbility.bind(this));
         this.element.find(".lmrtfy-extra-perception").hover(this._onHoverAbility.bind(this));
         this.element.find(".lmrtfy-ability").hover(this._onHoverAbility.bind(this));
-        this.element.find(".lmrtfy-skill").hover(this._onHoverAbility.bind(this));
-        this.element.find(".lmrtfy-lore-skill").hover(this._onHoverAbility.bind(this));
+        //this.element.find(".lmrtfy-skill").hover(this._onHoverAbility.bind(this));
+        //this.element.find(".lmrtfy-lore-skill").hover(this._onHoverAbility.bind(this));
         const actors = this.element.find(".lmrtfy-actor");
         actors.hover(this._onHoverActor.bind(this));
         actors.click(this._onClickActor.bind(this));
@@ -322,7 +322,10 @@ class LMRTFYRequestor extends FormApplication {
         const actors = keys.filter(k => formData[k] && k.startsWith("actor-")).map(k => k.slice(6));
         const abilities = keys.filter(k => formData[k] && k.startsWith("check-")).map(k => k.slice(6));
         const saves = keys.filter(k => formData[k] && k.startsWith("save-")).map(k => k.slice(5));
-        const skills = keys.filter(k => formData[k] && k.startsWith("skill-")).map(k => k.slice(6));
+        const skills = formData.skills ?? [];
+        if (formData['lore-skills']?.length > 0 ) {
+            skills.push(...formData['lore-skills']);
+        }
         const formula = formData.formula ? formData.formula.trim() : undefined;
         const { mode, title, message, extraRollOptions } = formData;
         const traits = formData.traits;
