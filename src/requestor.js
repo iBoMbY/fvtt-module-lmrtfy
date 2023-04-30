@@ -4,8 +4,6 @@ class LMRTFYRequestor extends FormApplication {
     constructor(data = undefined) {
         super();
      
-        game.users.apps.push(this);
-
         this.selected = data ?? {};
 
         if (!this.selected.extraRollNotes)
@@ -62,7 +60,6 @@ class LMRTFYRequestor extends FormApplication {
     static get defaultOptions() {
         const options = super.defaultOptions;
         options.title = game.i18n.localize("LMRTFY.Title");
-        options.id = "lmrtfy";
         options.template = "modules/lmrtfy_pf2e/templates/request-rolls.html";
         options.closeOnSubmit = false;
         options.popOut = true;
@@ -106,15 +103,6 @@ class LMRTFYRequestor extends FormApplication {
         };
     }
 
-    render(force, context={}) {
-        // Only re-render if needed
-        const {action, data} = context;
-        if (action && !["create", "update", "delete"].includes(action)) return;
-        if (action === "update" && !data.some(d => "character" in d)) return;
-        if (force !== true && !action) return;
-        return super.render(force, context);
-      }
-    
     activateListeners(html) {
         super.activateListeners(html);
 
@@ -133,7 +121,7 @@ class LMRTFYRequestor extends FormApplication {
     }
 
     close(...args) {
-        this.initializeData();
+        this.invalid = true;
         return super.close(...args);
     }
 

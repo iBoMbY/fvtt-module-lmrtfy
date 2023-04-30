@@ -153,10 +153,14 @@ class LMRTFY {
 
     static requestRoll(data = undefined) {
         if (data) {
+            if (LMRTFY.requestor && !LMRTFY.requestor.invalid) {
+                LMRTFY.requestor.close();    
+            }
             LMRTFY.requestor = new LMRTFYRequestor(data);
         } else {
-            if (LMRTFY.requestor === undefined)
+            if (!LMRTFY.requestor || LMRTFY.requestor.invalid) {
                 LMRTFY.requestor = new LMRTFYRequestor();
+            }
         }
         LMRTFY.requestor.render(true);
     }
