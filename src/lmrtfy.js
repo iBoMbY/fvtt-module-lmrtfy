@@ -147,6 +147,9 @@ class LMRTFY {
     }
     
     static pickActorsAndSend(data) {
+        if (LMRTFY.picker && !LMRTFY.picker.invalid) {
+            LMRTFY.picker.close();
+        }
         LMRTFY.picker = new LMRTFYPicker(data);
         LMRTFY.picker.render(true);
     }

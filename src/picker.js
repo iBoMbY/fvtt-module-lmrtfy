@@ -67,21 +67,12 @@ class LMRTFYPicker extends FormApplication {
         };
     }
 
-    render(force, context={}) {
-        // Only re-render if needed
-        const {action, data} = context;
-        if (action && !["create", "update", "delete"].includes(action)) return;
-        if (action === "update" && !data.some(d => "character" in d)) return;
-        if (force !== true && !action) return;
-        return super.render(force, context);
-      }
-    
     activateListeners(html) {
         super.activateListeners(html);
 
         $(".chosen-select").chosen();
 
-        this.element.find(".select-all").click((event) => this._setActorSelection(event, true));
+        this.element.find(".lmrtfy-select-all").click((event) => this._setActorSelection(event, true));
     }
 
     _setActorSelection(event, enabled) {
@@ -89,6 +80,11 @@ class LMRTFYPicker extends FormApplication {
         this.selected.actors = Object.keys(this.actors);
         this.render(true);
     }
+
+    close(...args) {
+        this.invalid = true;
+        return super.close(...args);
+    }    
 
     async _updateObject(event, formData) {
         const actors = formData.actors ?? [];
