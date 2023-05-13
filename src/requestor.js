@@ -88,6 +88,8 @@ class LMRTFYRequestor extends FormApplication {
             (Object.keys(a_skills).map(key => a_skills[key]).filter(skill => !LMRTFY.skills[skill.slug])).map(skill => skills[skill.slug] = skill.label);
         });
 
+        skills["perception"] = "LMRTFY.Perception";
+
         const extraRollOptions = game.settings.get('lmrtfy_pf2e', 'extraRollOptions')
 
         return {
@@ -134,6 +136,15 @@ class LMRTFYRequestor extends FormApplication {
         const { mode, title, message, extraRollOptions } = formData;
         const traits = formData.traits;
 
+        let perception = formData['extra-perception'];
+
+        const index = skills.indexOf("perception");
+
+        if (index > -1) {
+            perception = true;
+            delete skills[index];
+        }
+
         let dc = undefined;
         const dcValue = parseInt(formData.dc);
 
@@ -168,7 +179,7 @@ class LMRTFYRequestor extends FormApplication {
             mode,
             title,
             message,
-            perception: formData['extra-perception'],
+            perception,
             "flat-check": formData['extra-flat-check'],
             chooseOne: formData['choose-one'],
             dc,
