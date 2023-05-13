@@ -139,6 +139,11 @@ class LMRTFYRoller extends Application {
     }
 
     extractExtraRollOptions(extraRollOptions) {
+
+        if (Array.isArray(extraRollOptions)) {
+            return extraRollOptions;
+        }
+
         let result = [];
 
         if (extraRollOptions && extraRollOptions.length > 0) {
@@ -166,7 +171,7 @@ class LMRTFYRoller extends Application {
         });
 
         for (let actor of this.actors) {
-            await game.pf2e.Check.roll(modifier, { type: 'flat-check', dc: this.dc, traits, notes: this.extraRollNotes, options, actor }, event, async (roll, outcome, message) => {
+            await game.pf2e.Check.roll(modifier, { type: 'flat-check', dc: this.dc, traits, notes: this.extraRollNotes, options: this.extraRollOptions, actor }, event, async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'flat-check', roll, outcome, message);
             });
         }

@@ -66,8 +66,14 @@
         
         <div class="form-group">
             <label>{{localize "LMRTFY.ExtraRollOptions"}}</label>
-            <input type="text" name="extraRollOptions" value="{{selected.extraRollOptions}}" placeholder='{{localize "LMRTFY.ExtraPlaceholder"}}' data-dtype="String"/>
-        </div>        
+                <select name="extraRollOptions" id="lmrtf-extraRollOptions" data-placeholder="Begin typing a name to filter..." multiple class="chosen-select" data-dtype="String">
+                    <option value=""></option>
+                    {{#each extraRollOptions}}
+                    <option value="{{this}}" {{#if (lmrtfy-isSelected "extraRollOptions" this)}}selected{{/if}}>{{this}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
     </fieldset>
 
     <fieldset>

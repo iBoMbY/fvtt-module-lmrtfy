@@ -90,6 +90,8 @@ class LMRTFYRequestor extends FormApplication {
             (Object.keys(a_skills).map(key => a_skills[key]).filter(skill => !LMRTFY.skills[skill.slug])).map(skill => lore_skills[skill.slug] = skill.label);
         });
 
+        const extraRollOptions = game.settings.get('lmrtfy_pf2e', 'extraRollOptions')
+
         return {
             actors,
             saves: LMRTFY.saves,
@@ -100,6 +102,7 @@ class LMRTFYRequestor extends FormApplication {
             traits: LMRTFY.traits,
             selected: this.selected,
             outcomes: LMRTFY.outcomes,
+            extraRollOptions,
         };
     }
 
