@@ -171,19 +171,6 @@
         </div>
     </fieldset>
 
-    <fieldset>
-        <div class="form-group">
-            <label>{{localize "PF2E.LoreSkillsHeader"}}</label>
-                <select name="lore-skills" id="lmrtf-lore-skills" data-placeholder="Begin typing a name to filter..." multiple class="chosen-select" data-dtype="String">
-                    <option value=""></option>
-                    {{#each lore_skills as |name key|}}
-                    <option value="{{key}}" {{#if (lmrtfy-isSelected "skills" key)}}selected{{/if}}>{{localize name}}</option>
-                    {{/each}}
-                </select>
-            </div>
-        </div>
-    </fieldset>
-
     <div class="lmrtfy-submit">
         <button type="submit" class="lmrtfy-request-roll" name="submit" value="1"><i class="fas fa-dice"></i>{{localize "LMRTFY.RequestRolls"}}</button>
         <button type="button" class="lmrtfy-save-roll" name="submit" value="1"><i class="fas fa-download"></i>{{localize "LMRTFY.SaveRequest"}}</button>

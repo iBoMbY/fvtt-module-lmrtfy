@@ -83,11 +83,9 @@ class LMRTFYRequestor extends FormApplication {
                 return acc;
             }, {});
 
-        const lore_skills = {};
-
         actors.forEach(actor => {
             const a_skills = actor.skills;
-            (Object.keys(a_skills).map(key => a_skills[key]).filter(skill => !LMRTFY.skills[skill.slug])).map(skill => lore_skills[skill.slug] = skill.label);
+            (Object.keys(a_skills).map(key => a_skills[key]).filter(skill => !LMRTFY.skills[skill.slug])).map(skill => skills[skill.slug] = skill.label);
         });
 
         const extraRollOptions = game.settings.get('lmrtfy_pf2e', 'extraRollOptions')
@@ -96,7 +94,6 @@ class LMRTFYRequestor extends FormApplication {
             actors,
             saves: LMRTFY.saves,
             skills,
-            lore_skills,
             specialRolls: LMRTFY.specialRolls,
             rollModes: CONFIG.Dice.rollModes,
             traits: LMRTFY.traits,
@@ -133,9 +130,7 @@ class LMRTFYRequestor extends FormApplication {
         const actors = formData.actors ?? [];
         const saves = keys.filter(k => formData[k] && k.startsWith("save-")).map(k => k.slice(5));
         const skills = formData.skills ?? [];
-        if (formData['lore-skills']?.length > 0 ) {
-            skills.push(...formData['lore-skills']);
-        }
+
         const { mode, title, message, extraRollOptions } = formData;
         const traits = formData.traits;
 
