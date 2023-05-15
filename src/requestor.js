@@ -61,6 +61,7 @@ class LMRTFYRequestor extends FormApplication {
         const options = super.defaultOptions;
         options.title = game.i18n.localize("LMRTFY.Title");
         options.template = "modules/lmrtfy_pf2e/templates/request-rolls.html";
+        options.submitOnChange = true;
         options.closeOnSubmit = false;
         options.popOut = true;
         options.width = 600;
@@ -108,15 +109,22 @@ class LMRTFYRequestor extends FormApplication {
 
     activateListeners($html) {
         super.activateListeners($html);
-
         $(".chosen-select").chosen({ width: "100%" });
 
-        $html.find(".lmrtfy-select-all").click(this._onSubmit.bind(this));
-        $html.find(".lmrtfy-save-roll").click(this._onSubmit.bind(this));
-        $html.find(".add-extra-roll-note").click(this._onSubmit.bind(this));
-        $html.find(".lmrtfy-clear-all").click(this._onSubmit.bind(this));
-
         const html = $html[0];
+        // Select All button
+        html.querySelector("button.lmrtfy-select-all").addEventListener("click", () => {
+            this.selected.actors = Object.keys(this.actors);
+            this.render();
+        });
+
+        // Add Roll Note button
+        html.querySelector("button.add-extra-roll-note").addEventListener("click", () => {
+            this.selected.extraRollNotes.push(new LMRTFYRollNoteSource());
+            this.render();
+        });
+
+        // Roll note delete buttons
         for (const deleteButton of Array.from(html.querySelectorAll("a[data-action=delete-note]"))) {
             deleteButton.addEventListener("click", () => {
                 const index = Number(deleteButton.dataset.index);
@@ -126,6 +134,50 @@ class LMRTFYRequestor extends FormApplication {
                 }
             });
         }
+
+        // Request Rolls button
+        html.querySelector("button.lmrtfy-request-roll").addEventListener("click", () => {
+            const socketData = this.selected;
+
+            if (socketData.actors.length === 0 ||
+                (!socketData.message && socketData.saves.length === 0 && socketData.skills.length === 0 && !socketData.perception && !socketData['flat-check'])) {
+               ui.notifications.warn(game.i18n.localize("LMRTFY.NothingNotification"));
+               return;
+           }
+
+           game.socket.emit('module.lmrtfy_pf2e', socketData);
+           // Send to ourselves
+           LMRTFY.onMessage(socketData);
+           ui.notifications.info(game.i18n.localize("LMRTFY.SentNotification"));
+        });
+
+        // Save as Macro button
+        html.querySelector("button.lmrtfy-save-roll").addEventListener("click", async () => {
+            const formData = this.selected;
+            const actorTargets = formData.actors.map(a => this.actors[a]).filter(a => a).map(a => a.name).join(", ");
+            const scriptContent = `// ${formData.title} ${formData.message ? " -- " + formData.message : ""}\n` +
+                `// Request rolls from ${actorTargets}\n` +
+                `// Saves: ${formData.saves.map(a => LMRTFY.saves[a]).filter(s => s).join(", ")}\n` +
+                `// Skills: ${formData.skills.map(s => LMRTFY.skills[s]).filter(s => s).join(", ")}\n` +
+                `const data = ${JSON.stringify(formData, null, 2)};\n\n` +
+                `game.socket.emit('module.lmrtfy_pf2e', data);\n` +
+                `// alternative (preset request window): LMRTFY.requestRoll(data);\n` +
+                `// alternative (only pick chars): LMRTFY.pickActorsAndSend(data);\n`;
+            const macro = await Macro.create({
+                name: "LMRTFY: " + (formData.message || formData.title),
+                type: "script",
+                scope: "global",
+                command: scriptContent,
+                img: "icons/svg/d20-highlight.svg"
+            });
+            macro.sheet.render(true);
+        });
+
+        // Clear All button
+        html.querySelector("button.lmrtfy-clear-all").addEventListener("click", () => {
+            this.initializeData();
+            this.render();
+        });
     }
 
     initializeData() {
@@ -201,70 +253,8 @@ class LMRTFYRequestor extends FormApplication {
         };
     }
 
-    async _updateObject(event, formData) {
+    async _updateObject(_event, formData) {
         //console.log("LMRTFY submit: ", formData)
-
-        const selectAll = $(event.currentTarget).hasClass("lmrtfy-select-all");
-
-        if (selectAll) {
-            this.selected = this.parseFormData(formData);
-            this.selected.actors = Object.keys(this.actors);
-            this.render(true);
-            return;
-        }
-
-        const clearAll = $(event.currentTarget).hasClass("lmrtfy-clear-all");
-
-        if (clearAll) {
-            this.initializeData();
-            this.render(true);
-            return;
-        }
-
-        const addExtraRollNote = $(event.currentTarget).hasClass("add-extra-roll-note");
-
-        if (addExtraRollNote) {
-            this.selected = this.parseFormData(formData);
-            this.selected.extraRollNotes.push(new LMRTFYRollNoteSource());
-            this.render(true);
-            return;
-        }
-
-        const saveAsMacro = $(event.currentTarget).hasClass("lmrtfy-save-roll");
-
-        const socketData = this.parseFormData(formData);
-        
-        if (socketData.actors.length === 0 ||
-             (!socketData.message && socketData.saves.length === 0 && socketData.skills.length === 0 && !socketData.perception && !socketData['flat-check'])) {
-            ui.notifications.warn(game.i18n.localize("LMRTFY.NothingNotification"));
-            return;
-        }
-        
-        // console.log("LMRTFY socket send : ", socketData)
-        if (saveAsMacro) {
-
-            const actorTargets = socketData.actors.map(a => this.actors[a]).filter(a => a).map(a => a.name).join(", ");
-            const scriptContent = `// ${socketData.title} ${socketData.message ? " -- " + socketData.message : ""}\n` +
-                `// Request rolls from ${actorTargets}\n` +
-                `// Saves: ${socketData.saves.map(a => LMRTFY.saves[a]).filter(s => s).join(", ")}\n` +
-                `// Skills: ${socketData.skills.map(s => LMRTFY.skills[s]).filter(s => s).join(", ")}\n` +
-                `const data = ${JSON.stringify(socketData, null, 2)};\n\n` +
-                `game.socket.emit('module.lmrtfy_pf2e', data);\n` +
-                `// alternative (preset request window): LMRTFY.requestRoll(data);\n` +
-                `// alternative (only pick chars): LMRTFY.pickActorsAndSend(data);\n`;
-            const macro = await Macro.create({
-                name: "LMRTFY: " + (socketData.message || socketData.title),
-                type: "script",
-                scope: "global",
-                command: scriptContent,
-                img: "icons/svg/d20-highlight.svg"
-            });
-            macro.sheet.render(true);
-        } else {
-            game.socket.emit('module.lmrtfy_pf2e', socketData);
-            // Send to ourselves
-            LMRTFY.onMessage(socketData);
-            ui.notifications.info(game.i18n.localize("LMRTFY.SentNotification"))
-        }
+        this.selected = this.parseFormData(formData);
     }
 }
