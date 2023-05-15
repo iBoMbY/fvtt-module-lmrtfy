@@ -23,69 +23,8 @@ class LMRTFY {
             hint: game.i18n.localize('LMRTFY.ExtraRollOptions'),
             scope: 'world',
             config: true,
-            type: Array,
-            default: [
-                "action:create-a-diversion", 
-                "action:create-a-diversion:distracting-words", 
-                "action:create-a-diversion:gesture", 
-                "action:create-a-diversion:trick",
-                "action:steal",
-                "action:pick-a-lock",
-                "action:palm-an-object",
-                "action:disable-device",
-                "action:sneak",
-                "action:hide",
-                "action:conceal-an-object",
-                "action:create-forgery",
-                "action:perform",
-                "action:command-an-animal",
-                "action:treat-poison",
-                "action:treat-disease",
-                "action:administer-first-aid",
-                "action:administer-first-aid:stabilize",
-                "action:administer-first-aid:stop-bleeding",
-                "action:demoralize",
-                "action:coerce",
-                "action:subsist",
-                "action:decipher-writing",
-                "action:track",
-                "action:sense-direction",
-                "action:avoid-notice",
-                "action:request",
-                "action:make-an-impression",
-                "action:gather-information",
-                "action:bon-mot",
-                "action:lie",
-                "action:impersonate",
-                "action:feint",
-                "action:repair",
-                "action:craft",
-                "action:tamper",
-                "action:sense-motive",
-                "action:seek",
-                "action:escape",
-                "action:escape:unarmed",
-                "action:escape:acrobatics",
-                "action:escape:athletics",
-                "action:whirling-throw",
-                "action:trip",
-                "action:swim",
-                "action:shove",
-                "action:long-jump",
-                "action:leap",
-                "action:stride",
-                "action:high-jump",
-                "action:grapple",
-                "action:force-open",
-                "action:disarm",
-                "action:climb",
-                "action:arcane-slam",
-                "action:tumble-through",
-                "action:squeeze",
-                "action:maneuver-in-flight",
-                "action:balance",
-                "action:recall-knowledge"
-            ],
+            type: String,
+            default: "action:create-a-diversion,action:create-a-diversion:distracting-words,action:create-a-diversion:gesture,action:create-a-diversion:trick,action:steal,action:pick-a-lock,action:palm-an-object,action:disable-device,action:sneak,action:hide,action:conceal-an-object,action:create-forgery,action:perform,action:command-an-animal,action:treat-poison,action:treat-disease,action:administer-first-aid,action:administer-first-aid:stabilize,action:administer-first-aid:stop-bleeding,action:demoralize,action:coerce,action:subsist,action:decipher-writing,action:track,action:sense-direction,action:avoid-notice,action:request,action:make-an-impression,action:gather-information,action:bon-mot,action:lie,action:impersonate,action:feint,action:repair,action:craft,action:tamper,action:sense-motive,action:seek,action:escape,action:escape:unarmed,action:escape:acrobatics,action:escape:athletics,action:whirling-throw,action:trip,action:swim,action:shove,action:long-jump,action:leap,action:stride,action:high-jump,action:grapple,action:force-open,action:disarm,action:climb,action:arcane-slam,action:tumble-through,action:squeeze,action:maneuver-in-flight,action:balance,action:recall-knowledge",
             //onChange: () => window.location.reload()
         });
 
@@ -171,6 +110,11 @@ class LMRTFY {
         LMRTFY.traits = Object.fromEntries(traits);
 
         LMRTFY.rollResult = new Map();
+
+        const extraRollOptionsSetting = game.settings.get('lmrtfy_pf2e', 'extraRollOptions');
+        if (extraRollOptionsSetting.startsWith("[")) {
+            game.settings.set('lmrtfy_pf2e', 'extraRollOptions', extraRollOptionsSetting.replaceAll(/[\[|"|\]]/gm, ""));
+        }
     }
 
     static addObjectToMap(obj, map) {

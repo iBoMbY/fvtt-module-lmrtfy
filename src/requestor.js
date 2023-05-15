@@ -90,7 +90,8 @@ class LMRTFYRequestor extends FormApplication {
 
         skills["perception"] = "LMRTFY.Perception";
 
-        const extraRollOptions = game.settings.get('lmrtfy_pf2e', 'extraRollOptions')
+        const extraRollOptionsString = game.settings.get('lmrtfy_pf2e', 'extraRollOptions');
+        const extraRollOptions = extraRollOptionsString.split(",").map((s) => s.trim()).filter((s) => !!s);
 
         return {
             actors,
@@ -105,15 +106,26 @@ class LMRTFYRequestor extends FormApplication {
         };
     }
 
-    activateListeners(html) {
-        super.activateListeners(html);
+    activateListeners($html) {
+        super.activateListeners($html);
 
-        $(".chosen-select").chosen();
+        $(".chosen-select").chosen({ width: "100%" });
 
-        this.element.find(".lmrtfy-select-all").click(this._onSubmit.bind(this));
-        this.element.find(".lmrtfy-save-roll").click(this._onSubmit.bind(this));
-        this.element.find(".add-extra-roll-note").click(this._onSubmit.bind(this))
-        this.element.find(".lmrtfy-clear-all").click(this._onSubmit.bind(this))
+        $html.find(".lmrtfy-select-all").click(this._onSubmit.bind(this));
+        $html.find(".lmrtfy-save-roll").click(this._onSubmit.bind(this));
+        $html.find(".add-extra-roll-note").click(this._onSubmit.bind(this));
+        $html.find(".lmrtfy-clear-all").click(this._onSubmit.bind(this));
+
+        const html = $html[0];
+        for (const deleteButton of Array.from(html.querySelectorAll("a[data-action=delete-note]"))) {
+            deleteButton.addEventListener("click", () => {
+                const index = Number(deleteButton.dataset.index);
+                if (!isNaN(index)) {
+                    this.selected.extraRollNotes.splice(index, 1);
+                    this.render();
+                }
+            });
+        }
     }
 
     initializeData() {
