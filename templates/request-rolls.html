@@ -77,6 +77,9 @@
         <div class="form-group">
             <label>&nbsp;{{localize "PF2E.RuleElement.Note"}} {{@index}}:</label>
             <input type="hidden" name="extraRollNoteIndex" value="{{@index}}"/>
+            <div class="lmrtfy-delete-note">
+                <a data-action="delete-note" data-index="{{@index}}"><i class="fas fa-trash fa-1x fa-fw"></i></a>
+            </div>
         </div>
 
         <div class="form-group">

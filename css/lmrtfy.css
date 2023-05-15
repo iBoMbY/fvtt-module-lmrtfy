@@ -397,3 +397,10 @@ form .form-group .lmrtfy-lore-skill-checks {
 .lmrtfy .chosen-container .chosen-results {
 	max-height: 120px !important;
 }
+
+.lmrtfy-delete-note {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+}
