@@ -31,7 +31,7 @@ class LMRTFYRoller extends Application {
         options.height = "auto";
         options.classes = ["lmrtfy", "lmrtfy-roller"];
         if (game.settings.get('lmrtfy_pf2e', 'enableParchmentTheme')) {
-          options.classes.push('lmrtfy-parchment');
+            options.classes.push('lmrtfy-parchment');
         }
         return options;
     }
@@ -42,7 +42,7 @@ class LMRTFYRoller extends Application {
         actors.forEach(actor => {
             const modifier = get_modifier(actor);
 
-            const {rank, mod} = LMRTFY.getModifierBreakdown(modifier);
+            const { rank, mod } = LMRTFY.getModifierBreakdown(modifier);
 
             if (this.actors.length == 1) {
                 breakdown = `${rank} ${mod}`;
@@ -60,13 +60,13 @@ class LMRTFYRoller extends Application {
         let skills = {}
 
         this.saves.forEach(s => {
-            saves[s] = { 
-                name: LMRTFY.saves[s], 
+            saves[s] = {
+                name: LMRTFY.saves[s],
                 breakdown: this._buildActorsBreakdown(this.actors, (actor) => { return actor.saves[s]; })
             }
         });
 
-        this.skills.forEach(s => { 
+        this.skills.forEach(s => {
             let name = LMRTFY.skills[s];
             const breakdown = this._buildActorsBreakdown(this.actors, (actor) => {
                 const skill = actor.skills[s];
@@ -76,7 +76,7 @@ class LMRTFYRoller extends Application {
                     name = skill.label;
                 }
 
-                return skill; 
+                return skill;
             });
 
             skills[s] = { name, breakdown };
@@ -101,12 +101,12 @@ class LMRTFYRoller extends Application {
         super.activateListeners(html);
         this.element.find(".lmrtfy-ability-save").click(this._onAbilitySave.bind(this))
         this.element.find(".lmrtfy-skill-check").click(this._onSkillCheck.bind(this))
-        if(LMRTFY.specialRolls['perception']) {
+        if (LMRTFY.specialRolls['perception']) {
             this.element.find(".lmrtfy-perception").click(this._onPerception.bind(this))
         }
-        if(LMRTFY.specialRolls['flat-check']) {
+        if (LMRTFY.specialRolls['flat-check']) {
             this.element.find(".lmrtfy-flat-check").click(this._onFlatCheck.bind(this))
-        }        
+        }
     }
 
     _checkClose() {
@@ -154,49 +154,40 @@ class LMRTFYRoller extends Application {
     }
 
     async _makeFlatCheck(event) {
-        // save the current roll mode to reset it after this roll
-        const rollMode = game.settings.get("core", "rollMode");
-        game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
-
+        const rollMode = this.mode || CONST.DICE_ROLL_MODES.PUBLIC;
         const options = this.extractExtraRollOptions(this.extraRollOptions);
-
         const modifier = new game.pf2e.StatisticModifier(game.i18n.localize('PF2E.FlatCheck'), [], ['flat-check']);
 
         const traits = this.traits.map(trait => {
             return {
                 name: trait,
                 label: game.i18n.localize(CONFIG.PF2E.actionTraits[trait] ?? trait),
-                description: game.i18n.localize(CONFIG.PF2E.traitsDescriptions[trait] ?? '' )
+                description: game.i18n.localize(CONFIG.PF2E.traitsDescriptions[trait] ?? '')
             };
         });
 
         for (let actor of this.actors) {
-            await game.pf2e.Check.roll(modifier, { type: 'flat-check', dc: this.dc, traits, notes: this.extraRollNotes, options: this.extraRollOptions, actor }, event, async (roll, outcome, message) => {
+            await game.pf2e.Check.roll(modifier, { type: 'flat-check', dc: this.dc, traits, notes: this.extraRollNotes, options, actor, rollMode }, event, async (roll, outcome, message) => {
                 this.handleCallback(actor.id, 'flat-check', roll, outcome, message);
             });
         }
 
-        game.settings.set("core", "rollMode", rollMode);
-
         event.currentTarget.disabled = true;
 
-        this._checkClose();        
+        this._checkClose();
     }
 
     async _makeSaveRoll(event, save_id) {
-        // save the current roll mode to reset it after this roll
-        const rollMode = game.settings.get("core", "rollMode");
-        game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
-
+        const rollMode = this.mode || CONST.DICE_ROLL_MODES.PUBLIC;
         const extraRollOptions = this.extractExtraRollOptions(this.extraRollOptions);
 
         for (let actor of this.actors) {
-            await actor.saves[save_id].check.roll({ event, dc: this.dc, traits: this.traits, extraRollOptions, extraRollNotes: this.extraRollNotes, callback: async (roll, outcome, message) => {
-                this.handleCallback(actor.id, 'save', save_id, roll, outcome, message);
-            }});
+            await actor.saves[save_id].check.roll({
+                event, dc: this.dc, traits: this.traits, extraRollOptions, extraRollNotes: this.extraRollNotes, rollMode, callback: async (roll, outcome, message) => {
+                    this.handleCallback(actor.id, 'save', save_id, roll, outcome, message);
+                }
+            });
         }
-
-        game.settings.set("core", "rollMode", rollMode);
 
         event.currentTarget.disabled = true;
 
@@ -204,10 +195,7 @@ class LMRTFYRoller extends Application {
     }
 
     async _makeSkillRoll(event, skill_id) {
-        // save the current roll mode to reset it after this roll
-        const rollMode = game.settings.get("core", "rollMode");
-        game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
-
+        const rollMode = this.mode || CONST.DICE_ROLL_MODES.PUBLIC;
         const extraRollOptions = this.extractExtraRollOptions(this.extraRollOptions);
 
         for (let actor of this.actors) {
@@ -215,12 +203,12 @@ class LMRTFYRoller extends Application {
 
             if (!check) continue;
 
-            await check.roll({ event, dc: this.dc, traits: this.traits, extraRollOptions, extraRollNotes: this.extraRollNotes, callback: async (roll, outcome, message) => {
-                this.handleCallback(actor.id, 'skill', skill_id, roll, outcome, message);
-            }});
+            await check.roll({
+                event, dc: this.dc, traits: this.traits, extraRollOptions, extraRollNotes: this.extraRollNotes, rollMode, callback: async (roll, outcome, message) => {
+                    this.handleCallback(actor.id, 'skill', skill_id, roll, outcome, message);
+                }
+            });
         }
-
-        game.settings.set("core", "rollMode", rollMode);
 
         event.currentTarget.disabled = true;
 
@@ -229,20 +217,18 @@ class LMRTFYRoller extends Application {
 
     async _makePerceptionRoll(event) {
         // save the current roll mode to reset it after this roll
-        const rollMode = game.settings.get("core", "rollMode");
-        game.settings.set("core", "rollMode", this.mode || CONST.DICE_ROLL_MODES);
-
+        const rollMode = this.mode || CONST.DICE_ROLL_MODES.PUBLIC;
         const extraRollOptions = this.extractExtraRollOptions(this.extraRollOptions);
 
         for (let actor of this.actors) {
             const check = actor.perception ?? actor.attributes.perception;
 
-            await check.roll({ event, dc: this.dc, traits: this.traits, extraRollOptions, extraRollNotes: this.extraRollNotes, callback: async (roll, outcome, message) => {
-                this.handleCallback(actor.id, 'perception', 'perception', roll, outcome, message);
-            }});
+            await check.roll({
+                event, dc: this.dc, traits: this.traits, extraRollOptions, extraRollNotes: this.extraRollNotes, rollMode, callback: async (roll, outcome, message) => {
+                    this.handleCallback(actor.id, 'perception', 'perception', roll, outcome, message);
+                }
+            });
         }
-
-        game.settings.set("core", "rollMode", rollMode);
 
         event.currentTarget.disabled = true;
 
