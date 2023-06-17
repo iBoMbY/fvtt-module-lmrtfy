@@ -153,8 +153,16 @@ class LMRTFYRoller extends Application {
         return result;
     }
 
+    getRollMode() {
+        if (this.traits && this.traits.includes('secret')) {
+            return CONST.DICE_ROLL_MODES.BLIND;
+        } else {
+            return this.mode || CONST.DICE_ROLL_MODES.PUBLIC;
+        }
+    }
+
     async _makeFlatCheck(event) {
-        const rollMode = this.mode || CONST.DICE_ROLL_MODES.PUBLIC;
+        const rollMode = this.getRollMode();
         const options = this.extractExtraRollOptions(this.extraRollOptions);
         const modifier = new game.pf2e.StatisticModifier(game.i18n.localize('PF2E.FlatCheck'), [], ['flat-check']);
 
@@ -178,7 +186,7 @@ class LMRTFYRoller extends Application {
     }
 
     async _makeSaveRoll(event, save_id) {
-        const rollMode = this.mode || CONST.DICE_ROLL_MODES.PUBLIC;
+        const rollMode = this.getRollMode();
         const extraRollOptions = this.extractExtraRollOptions(this.extraRollOptions);
 
         for (let actor of this.actors) {
@@ -195,7 +203,7 @@ class LMRTFYRoller extends Application {
     }
 
     async _makeSkillRoll(event, skill_id) {
-        const rollMode = this.mode || CONST.DICE_ROLL_MODES.PUBLIC;
+        const rollMode = this.getRollMode();
         const extraRollOptions = this.extractExtraRollOptions(this.extraRollOptions);
 
         for (let actor of this.actors) {
@@ -217,7 +225,7 @@ class LMRTFYRoller extends Application {
 
     async _makePerceptionRoll(event) {
         // save the current roll mode to reset it after this roll
-        const rollMode = this.mode || CONST.DICE_ROLL_MODES.PUBLIC;
+        const rollMode = this.getRollMode();
         const extraRollOptions = this.extractExtraRollOptions(this.extraRollOptions);
 
         for (let actor of this.actors) {
