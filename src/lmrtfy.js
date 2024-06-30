@@ -54,7 +54,7 @@ class LMRTFY {
             diplomacy: "PF2E.Skill.Diplomacy",
             intimidation: "PF2E.Skill.Intimidation",
             medicine: "PF2E.Skill.Medicine",
-            nature: "PF2E.Skill.Natur",
+            nature: "PF2E.Skill.Nature",
             occultism: "PF2E.Skill.Occultism",
             performance: "PF2E.Skill.Performance",
             religion: "PF2E.Skill.Religion",
