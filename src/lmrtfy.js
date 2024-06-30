@@ -46,22 +46,22 @@ class LMRTFY {
         LMRTFY.skillRollMethod = 'rollSkill';
         //LMRTFY.skills = CONFIG.PF2E.skills; <- broken
         LMRTFY.skills = {
-            acrobatics: "PF2E.SkillAcr",
-            arcana: "PF2E.SkillArc",
-            athletics: "PF2E.SkillAth",
-            crafting: "PF2E.SkillCra",
-            deception: "PF2E.SkillDec",
-            diplomacy: "PF2E.SkillDip",
-            intimidation: "PF2E.SkillItm",
-            medicine: "PF2E.SkillMed",
-            nature: "PF2E.SkillNat",
-            occultism: "PF2E.SkillOcc",
-            performance: "PF2E.SkillPrf",
-            religion: "PF2E.SkillRel",
-            society: "PF2E.SkillSoc",
-            stealth: "PF2E.SkillSte",
-            survival: "PF2E.SkillSur",
-            thievery: "PF2E.SkillThi"
+            acrobatics: "PF2E.Skill.Acrobatics",
+            arcana: "PF2E.Skill.Arcana",
+            athletics: "PF2E.Skill.Athletics",
+            crafting: "PF2E.Skill.Crafting",
+            deception: "PF2E.Skill.Deception",
+            diplomacy: "PF2E.Skill.Diplomacy",
+            intimidation: "PF2E.Skill.Intimidation",
+            medicine: "PF2E.Skill.Medicine",
+            nature: "PF2E.Skill.Natur",
+            occultism: "PF2E.Skill.Occultism",
+            performance: "PF2E.Skill.Performance",
+            religion: "PF2E.Skill.Religion",
+            society: "PF2E.Skill.Society",
+            stealth: "PF2E.Skill.Stealth",
+            survival: "PF2E.Skill.Survival",
+            thievery: "PF2E.Skill.Thievery"
         }
         LMRTFY.saves = CONFIG.PF2E.saves;
         LMRTFY.normalRollEvent = { shiftKey: false, altKey: false, ctrlKey: false };

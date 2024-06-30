@@ -9,12 +9,12 @@
   ],
   "url": "https://github.com/iBoMbY/fvtt-module-lmrtfy",
   "bugs": "https://github.com/iBoMbY/fvtt-module-lmrtfy/issues",
-  "version": "4.33",
+  "version": "4.34",
   "scripts": [
     "src/lmrtfy.js",
     "src/requestor.js",
     "src/roller.js",
-    "src/picker.js",    
+    "src/picker.js",
     "src/chosen.jquery.min.js"
   ],
   "styles": [
@@ -38,12 +38,17 @@
       {
         "id": "pf2e",
         "type": "system",
-        "compatibility": {}
+        "compatibility": {
+			"minimum": "6.0.4",
+			"verified": "6.0.4"
+		}
       }
     ]
   },
+  "minimumCoreVersion": "12",
+  "compatibleCoreVersion": "12",
   "compatibility": {
-    "minimum": "10.284",
-    "verified": "10.284"
+    "minimum": "12",
+    "verified": "12"
   }
 }
